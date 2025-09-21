@@ -11,6 +11,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { CreateTaskModal } from '../components/CreateTaskModal';
 import { TaskCard } from '../components/TaskCard';
 import { router } from "expo-router";
+import { Search } from '../components/Search';
 
 
 
@@ -48,6 +49,9 @@ return(
           <Text className="text-2xl text-blue-950 pl-3 font-bold">Bem-Vindo</Text>
         </View>
         <DrawerToggleButton tintColor='#172554' />
+      </View>
+      <View>
+        <Search />
       </View>
  <SafeAreaView className="flex-1 bg-white">
       <Text className="text-base text-blue-950 px-6 -mt-2 mb-6">Gerencie seu tempo com foco</Text>

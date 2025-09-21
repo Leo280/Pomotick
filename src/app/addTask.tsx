@@ -1,4 +1,3 @@
-import { Feather } from "@expo/vector-icons";
 import { useTasks } from '@/contexts/TaskContext';
 import { DrawerToggleButton } from "@react-navigation/drawer";
 import { router } from 'expo-router';
