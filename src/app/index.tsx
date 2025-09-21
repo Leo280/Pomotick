@@ -12,6 +12,7 @@ import { CreateTaskModal } from '../components/CreateTaskModal';
 import { TaskCard } from '../components/TaskCard';
 import { router } from "expo-router";
 import { Search } from '../components/Search';
+import { Feather } from '@expo/vector-icons';
 
 
 
@@ -52,6 +53,17 @@ return(
       </View>
       <View>
         <Search />
+      </View>
+      <View className='flex-row items-center gap-5  mt-4 '>
+        <TouchableOpacity className='flex-row items-center justify-center gap-2 ml-5 border border-zinc-400 p-2 rounded-xl '>
+          <Feather name='heart' size={20} color={'#888'}/>
+          <Text className='text-zinc-500'>Favoritos</Text>
+        </TouchableOpacity>
+       
+        <TouchableOpacity className='flex-row items-center justify-center gap-2 border border-zinc-400 p-2 rounded-xl'>
+          <Feather name='clock' size={20} color={'#888'}/>
+          <Text className='text-zinc-500'>Histórico de Tarefas</Text>
+        </TouchableOpacity>
       </View>
  <SafeAreaView className="flex-1 bg-white">
       <Text className="text-base text-blue-950 px-6 -mt-2 mb-6">Gerencie seu tempo com foco</Text>
