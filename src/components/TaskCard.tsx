@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Play, Pause, Clock, CircleCheck as CheckCircle } from 'lucide-react-native';
+import FavoriteButton  from '../components/FavoriteButton'
 
 interface Task {
   id: string;
@@ -22,11 +23,12 @@ export function TaskCard({ task, onStart, onPause }: TaskCardProps) {
   const totalMinutes = task.totalPomodoros * 25;
 
   return (
-    <View className={`bg-white rounded-3xl p-5 mb-4 shadow-xl border ${task.isActive ? '' : 'border-gray-200'} `}>
-      <View className="flex-row justify-between items-start mb-4">
-        <Text className="text-base font-semibold text-gray-800 flex-1 mr-3 leading-6" numberOfLines={2}>
+    <View className={`bg-white rounded-3xl p-5 mb-4 shadow-xl border ${task.isActive ? 'border-zinc-300' : 'border-gray-200'} `}>
+      <View className="flex-row justify-between items-center mb-4">
+        <Text className="text-lg font-bold text-gray-800 flex-1 mr-3 leading-6" numberOfLines={2}>
           {task.title}
         </Text>
+        <FavoriteButton/>
       </View>
 
       <View className="flex-row items-center mb-3">
