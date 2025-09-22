@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { TouchableOpacity, StyleSheet } from 'react-native';
-import { AntDesign } from '@expo/vector-icons'; // Ícones do estilo Instagram
+import { AntDesign } from '@expo/vector-icons'; 
 
 const FavoriteButton = () => {
   const [favorited, setFavorited] = useState(false);

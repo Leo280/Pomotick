@@ -6,11 +6,11 @@ import {
   Bell,
   ChevronRight,
   Clock,
-  Info,
   Moon,
   Smartphone,
-  User,
-  Volume2
+  User, 
+  Volume2,
+  Hourglass,
 } from 'lucide-react-native';
 import { Feather } from "@expo/vector-icons";
 
@@ -27,7 +27,8 @@ export default function SettingsScreen() {
     subtitle, 
     onPress, 
     rightElement,
-    showArrow = false 
+    showArrow = false,
+    iconBackgroundClassName = 'bg-gray-100',
   }: {
     icon: React.ReactNode;
     title: string;
@@ -35,10 +36,12 @@ export default function SettingsScreen() {
     onPress?: () => void;
     rightElement?: React.ReactNode;
     showArrow?: boolean;
+    iconBackgroundClassName?: string;
+
   }) => (
     <TouchableOpacity className="flex-row items-center justify-between px-4 py-4" onPress={onPress}>
       <View className="flex-row items-center flex-1">
-        <View className="w-10 h-10 rounded-full bg-gray-100 justify-center items-center mr-3">
+        <View className={`w-10 h-10 rounded-full justify-center items-center mr-3 ${iconBackgroundClassName}`}>
           {icon}
         </View>
         <View className="flex-1">
@@ -66,10 +69,11 @@ return(
           <Text className="text-base font-semibold text-gray-800 px-6 mb-3">Perfil</Text>
           <View className="bg-white mx-6 rounded-3xl shadow-sm">
             <SettingRow
-              icon={<Clock size={20} color="#6B7280" />}
+              icon={<User size={20} color="#fff" />}
               title="Meu Perfil"
               subtitle="Gerencie suas informações pessoais"
               showArrow
+              iconBackgroundClassName="bg-[#888]" 
               onPress={() => console.log('Perfil pressed')}
             />
           </View>
@@ -79,27 +83,30 @@ return(
           <Text className="text-base font-semibold text-gray-800 px-6 mb-3">Pomodoro</Text>
           <View className="bg-white mx-6 rounded-3xl shadow-sm">
             <SettingRow
-              icon={<Clock size={20} color="#270C56"  />}
+              icon={<Clock size={20} color="#fff"  />}
               title="Duração do Foco"
               subtitle="25 minutos"
               showArrow
+              iconBackgroundClassName="bg-[#270C56]" 
               onPress={() => console.log('Focus duration pressed')}
               
             />
             <View className="h-px bg-gray-200 ml-17" />
             <SettingRow
-              icon={<Clock size={20} color="#6B7280" />}
+              icon={<Hourglass size={20} color="#fff" />}
               title="Pausa Curta"
               subtitle="5 minutos"
               showArrow
+              iconBackgroundClassName="bg-[#7C53C2]" 
               onPress={() => console.log('Short break pressed')}
             />
             <View className="h-px bg-gray-200 ml-17" />
             <SettingRow
-              icon={<Clock size={20} color="#6B7280" />}
+              icon={<Hourglass size={20} color="#fff" />}
               title="Pausa Longa"
               subtitle="15 minutos"
               showArrow
+              iconBackgroundClassName="bg-[#573397]" 
               onPress={() => console.log('Long break pressed')}
             />
           </View>
@@ -109,9 +116,10 @@ return(
           <Text className="text-base font-semibold text-gray-800 px-6 mb-3">Notificações</Text>
           <View className="bg-white mx-6 rounded-3xl shadow-sm">
             <SettingRow
-              icon={<Bell size={20} color="#6B7280" />}
+              icon={<Bell size={20} color="#fff" />}
               title="Notificações Push"
               subtitle="Receba lembretes sobre suas tarefas"
+              iconBackgroundClassName="bg-[#DF381B]" 
               rightElement={
                 <Switch
                   value={notifications}
@@ -123,9 +131,10 @@ return(
             />
             <View className="h-px bg-gray-200 ml-17" />
             <SettingRow
-              icon={<Volume2 size={20} color="#6B7280" />}
+              icon={<Volume2 size={20} color="#fff" />}
               title="Sons"
               subtitle="Sons de início e fim dos ciclos"
+              iconBackgroundClassName="bg-[#CF1751]" 
               rightElement={
                 <Switch
                   value={sounds}
@@ -137,9 +146,10 @@ return(
             />
             <View className="h-px bg-gray-200 ml-17" />
             <SettingRow
-              icon={<Smartphone size={20} color="#6B7280" />}
+              icon={<Smartphone size={20} color="#fff" />}
               title="Vibração"
               subtitle="Feedback tátil durante as transições"
+              iconBackgroundClassName="bg-[#B51212]" 
               rightElement={
                 <Switch
                   value={vibration}
@@ -156,9 +166,10 @@ return(
           <Text className="text-base font-semibold text-gray-800 px-6 mb-3">Aparência</Text>
           <View className="bg-white mx-6 rounded-3xl shadow-sm">
             <SettingRow
-              icon={<Moon size={20} color="#6B7280" />}
+              icon={<Moon size={20} color="#fff" />}
               title="Modo Escuro"
               subtitle="Ativar tema escuro para melhor visualização"
+              iconBackgroundClassName="bg-[#3C3A40]" 
               rightElement={
                 <Switch
                   value={darkMode}
@@ -169,19 +180,6 @@ return(
               }
             />
           </View> 
-        </View>
-
-        <View className="mt-6 shadow-2xl">
-          <Text className="text-base font-semibold text-gray-800 px-6 mb-3">Sobre</Text>
-          <View className="bg-white mx-6 rounded-3xl shadow-sm">
-            <SettingRow
-              icon={<Info size={20} color="#6B7280" />}
-              title="Sobre o Pomotick"
-              subtitle="Versão 1.0.0"
-              showArrow
-              onPress={() => console.log('About pressed')}
-            />
-          </View>
         </View>
 
         <View className="px-6 py-8 items-center">
