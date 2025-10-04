@@ -1,15 +1,7 @@
+import { Task } from '@/types/Task';
+import { CircleCheck as CheckCircle, Clock, Pause, Play } from 'lucide-react-native';
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
-import { Play, Pause, Clock, CircleCheck as CheckCircle } from 'lucide-react-native';
-
-interface Task {
-  id: string;
-  title: string;
-  totalPomodoros: number;
-  completedPomodoros: number;
-  isActive: boolean;
-  timeRemaining?: number;
-}
+import { Text, TouchableOpacity, View } from 'react-native';
 
 interface TaskCardProps {
   task: Task;
@@ -31,9 +23,9 @@ export function TaskCard({ task, onStart, onPause }: TaskCardProps) {
 
       <View className="flex-row items-center mb-3">
         <View className="flex-1 h-1.5 bg-gray-200 rounded-full mr-3">
-          <View 
-            className="h-1.5 bg-primary-500 rounded-full" 
-            style={{ width: `${progress}%` }} 
+          <View
+            className="h-1.5 bg-primary-500 rounded-full"
+            style={{ width: `${progress}%` }}
           />
         </View>
         <Text className="text-sm font-semibold text-gray-500 min-w-8">
@@ -44,21 +36,21 @@ export function TaskCard({ task, onStart, onPause }: TaskCardProps) {
       <View className="flex-row items-center">
         <View className="flex-row items-center gap-44 justify-between ">
           <View className='flex-row items-center'><Clock size={16} color="#6B7280" />
-          <Text className="text-sm text-gray-500 ml-1.5">{totalMinutes} min</Text>
+            <Text className="text-sm text-gray-500 ml-1.5">{totalMinutes} min</Text>
           </View>
-        <TouchableOpacity 
-          className={`w-20 h-8 rounded-2xl flex-row justify-center gap-2 items-center first-letter:lex-row bg-blue-600`}
-          onPress={task.isActive ? onPause : onStart}
-        >
-          {task.isActive ? (
-            <Pause size={15} color="white" title='Pausar'  />
-          ) : (
-            <Play size={15} color="white" title='Iniciar' />
-          )}
-          <Text className='text-white'>Iniciar</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            className={`w-20 h-8 rounded-2xl flex-row justify-center gap-2 items-center first-letter:lex-row bg-blue-600`}
+            onPress={task.isActive ? onPause : onStart}
+          >
+            {task.isActive ? (
+              <Pause size={15} color="white" title='Pausar' />
+            ) : (
+              <Play size={15} color="white" title='Iniciar' />
+            )}
+            <Text className='text-white'>Iniciar</Text>
+          </TouchableOpacity>
         </View>
-        
+
         {task.completedPomodoros === task.totalPomodoros && (
           <View className="flex-row items-center">
             <CheckCircle size={16} color="#10B981" />
