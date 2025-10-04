@@ -45,7 +45,7 @@ export default function Tasks() {
     <SafeAreaView className="flex-1 p-6 bg-white">
       <View className="flex-row justify-between items-center">
         <View className='flex-row justify-center '>
-          <Text className="text-2xl text-blue-950 pl-3 font-bold">Bem-Vindo</Text>
+          <Text className="text-2xl text-blue-950 pl-3 font-bold"></Text>
         </View>
         <DrawerToggleButton tintColor='#172554' />
       </View>
