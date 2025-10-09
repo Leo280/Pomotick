@@ -11,6 +11,7 @@ export interface TaskStore {
   deleteTask: (id: string) => void;
   setActiveTask: (id: string) => void;
   pauseActiveTask: () => void;
+  changeFavorite: (id: string) => void;
 }
 
 const useTask = create<TaskStore>()(
@@ -25,7 +26,8 @@ const useTask = create<TaskStore>()(
           completedPomodoros: 0,
           isActive: false,
           createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
+          updatedAt: new Date().toISOString(),
+          isFavorite: false
         };
         set(state => ({ tasks: [...state.tasks, newTask] }));
       },
@@ -56,6 +58,11 @@ const useTask = create<TaskStore>()(
             task.isActive ? { ...task, isActive: false } : task
           )
         }));
+      },
+      changeFavorite: (id) => {
+        set(state => ({
+          tasks: state.tasks.map(task => task.id === id ? { ...task, isFavorite: !task.isFavorite } : task)
+        }))
       },
     }),
     {

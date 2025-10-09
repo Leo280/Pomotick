@@ -1,11 +1,10 @@
 import { Feather } from "@expo/vector-icons";
 import { Drawer } from "expo-router/drawer";
-import { useFrameworkReady } from '../../hooks/UseFrameworkReady';
 import '../styles/global.css';
+import { useFrameworkReady } from "@/hooks/UseFrameworkReady";
 
 export default function Layout() {
-
-  useFrameworkReady();
+  useFrameworkReady()
 
   return (
 

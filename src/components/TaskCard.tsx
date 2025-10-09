@@ -1,7 +1,7 @@
 import { Task } from '@/types/Task';
 import { CircleCheck as CheckCircle, Clock, Pause, Play } from 'lucide-react-native';
-import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
+import FavoriteButton from './FavoriteButton';
 
 interface TaskCardProps {
   task: Task;
@@ -19,7 +19,7 @@ export function TaskCard({ task, onStart, onPause }: TaskCardProps) {
         <Text className="text-lg font-bold text-gray-800 flex-1 mr-3 leading-6" numberOfLines={2}>
           {task.title}
         </Text>
-        <FavoriteButton/>
+        <FavoriteButton id={task.id} isFavorite={task.isFavorite} />
       </View>
 
       <View className="flex-row items-center mb-3">
