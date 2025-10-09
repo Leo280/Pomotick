@@ -1,20 +1,19 @@
-import React, { useState } from 'react';
-import { TouchableOpacity, StyleSheet } from 'react-native';
-import { AntDesign } from '@expo/vector-icons'; 
+import useTask from '@/stores/TaskStore';
+import { Task } from '@/types/Task';
+import { Octicons } from '@expo/vector-icons';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 
-const FavoriteButton = () => {
-  const [favorited, setFavorited] = useState(false);
+type FavoriteButtonProps = Pick<Task, 'id' | 'isFavorite'>
 
-  const toggleFavorite = () => {
-    setFavorited(!favorited);
-  };
+const FavoriteButton = ({ id, isFavorite }: FavoriteButtonProps) => {
+  const { changeFavorite } = useTask()
 
   return (
-    <TouchableOpacity onPress={toggleFavorite} style={styles.button}>
-      <AntDesign
-        name={favorited ? 'heart' : 'hearto'}
+    <TouchableOpacity onPress={() => changeFavorite(id)} style={styles.button}>
+      <Octicons
+        name={isFavorite ? 'heart-fill' : 'heart'}
         size={22}
-        color={favorited ? '#888' : 'gray'}
+        color={isFavorite ? '#888' : 'gray'}
       />
     </TouchableOpacity>
   );
