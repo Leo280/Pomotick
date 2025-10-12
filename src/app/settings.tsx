@@ -1,31 +1,29 @@
-import React, { useState } from 'react';
-import { SafeAreaView, ScrollView, Switch, TouchableOpacity, View } from "react-native";
+import useAppSettings from "@/stores/AppSettingsStore";
 import { DrawerToggleButton } from "@react-navigation/drawer";
-import { Text } from "react-native-gesture-handler";
 import {
   Bell,
   ChevronRight,
   Clock,
+  Hourglass,
   Moon,
   Smartphone,
-  User, 
+  User,
   Volume2,
-  Hourglass,
 } from 'lucide-react-native';
-import { Feather } from "@expo/vector-icons";
+import React from 'react';
+import { SafeAreaView, ScrollView, Switch, TouchableOpacity, View } from "react-native";
+import { Text } from "react-native-gesture-handler";
 
 
 export default function SettingsScreen() {
- const [notifications, setNotifications] = useState(true);
-  const [sounds, setSounds] = useState(true);
-  const [darkMode, setDarkMode] = useState(false);
-  const [vibration, setVibration] = useState(true);
+  const settingsStore = useAppSettings()
+  const settings = settingsStore.settings
 
-  const SettingRow = ({ 
-    icon, 
-    title, 
-    subtitle, 
-    onPress, 
+  const SettingRow = ({
+    icon,
+    title,
+    subtitle,
+    onPress,
     rightElement,
     showArrow = false,
     iconBackgroundClassName = 'bg-gray-100',
@@ -55,9 +53,9 @@ export default function SettingsScreen() {
       </View>
     </TouchableOpacity>
   );
-return(
+  return (
 
-  <SafeAreaView className="flex-1 p-6 pt-9 bg-gray-100">
+    <SafeAreaView className="flex-1 p-6 pt-9 bg-gray-100">
       <View className="flex-row justify-between items-center ml-28">
         <View className='flex-row justify-center items-center pt-5'>
           <Text className="text-2xl text-blue-950 pl-3 font-bold">Configurações</Text>
@@ -73,7 +71,7 @@ return(
               title="Meu Perfil"
               subtitle="Gerencie suas informações pessoais"
               showArrow
-              iconBackgroundClassName="bg-[#888]" 
+              iconBackgroundClassName="bg-[#888]"
               onPress={() => console.log('Perfil pressed')}
             />
           </View>
@@ -83,30 +81,30 @@ return(
           <Text className="text-base font-semibold text-gray-800 px-6 mb-3">Pomodoro</Text>
           <View className="bg-white mx-6 rounded-3xl shadow-sm">
             <SettingRow
-              icon={<Clock size={20} color="#fff"  />}
+              icon={<Clock size={20} color="#fff" />}
               title="Duração do Foco"
-              subtitle="25 minutos"
+              subtitle={`${settings.focusDuration / 60000} minutos`}
               showArrow
-              iconBackgroundClassName="bg-[#270C56]" 
+              iconBackgroundClassName="bg-[#270C56]"
               onPress={() => console.log('Focus duration pressed')}
-              
+
             />
             <View className="h-px bg-gray-200 ml-17" />
             <SettingRow
               icon={<Hourglass size={20} color="#fff" />}
               title="Pausa Curta"
-              subtitle="5 minutos"
+              subtitle={`${settings.shortPause / 60000} minutos`}
               showArrow
-              iconBackgroundClassName="bg-[#7C53C2]" 
+              iconBackgroundClassName="bg-[#7C53C2]"
               onPress={() => console.log('Short break pressed')}
             />
             <View className="h-px bg-gray-200 ml-17" />
             <SettingRow
               icon={<Hourglass size={20} color="#fff" />}
               title="Pausa Longa"
-              subtitle="15 minutos"
+              subtitle={`${settings.longPause / 60000} minutos`}
               showArrow
-              iconBackgroundClassName="bg-[#573397]" 
+              iconBackgroundClassName="bg-[#573397]"
               onPress={() => console.log('Long break pressed')}
             />
           </View>
@@ -119,13 +117,13 @@ return(
               icon={<Bell size={20} color="#fff" />}
               title="Notificações Push"
               subtitle="Receba lembretes sobre suas tarefas"
-              iconBackgroundClassName="bg-[#DF381B]" 
+              iconBackgroundClassName="bg-[#DF381B]"
               rightElement={
                 <Switch
-                  value={notifications}
-                  onValueChange={setNotifications}
+                  value={settings.pushNotification}
+                  onValueChange={settingsStore.enablePush}
                   trackColor={{ false: '#D1D5DB', true: '#32D74B' }}
-                  thumbColor={notifications ? '#fff' : '#F3F4F6'}
+                  thumbColor={settings.pushNotification ? '#fff' : '#F3F4F6'}
                 />
               }
             />
@@ -134,13 +132,13 @@ return(
               icon={<Volume2 size={20} color="#fff" />}
               title="Sons"
               subtitle="Sons de início e fim dos ciclos"
-              iconBackgroundClassName="bg-[#CF1751]" 
+              iconBackgroundClassName="bg-[#CF1751]"
               rightElement={
                 <Switch
-                  value={sounds}
-                  onValueChange={setSounds}
+                  value={settings.sounds}
+                  onValueChange={settingsStore.enableSound}
                   trackColor={{ false: '#D1D5DB', true: '#32D74B' }}
-                  thumbColor={sounds ? '#fff' : '#F3F4F6'}
+                  thumbColor={settings.sounds ? '#fff' : '#F3F4F6'}
                 />
               }
             />
@@ -149,13 +147,13 @@ return(
               icon={<Smartphone size={20} color="#fff" />}
               title="Vibração"
               subtitle="Feedback tátil durante as transições"
-              iconBackgroundClassName="bg-[#B51212]" 
+              iconBackgroundClassName="bg-[#B51212]"
               rightElement={
                 <Switch
-                  value={vibration}
-                  onValueChange={setVibration}
+                  value={settings.vibration}
+                  onValueChange={settingsStore.enableVibration}
                   trackColor={{ false: '#D1D5DB', true: '#32D74B' }}
-                  thumbColor={vibration ? '#fff' : '#F3F4F6'}
+                  thumbColor={settings.vibration ? '#fff' : '#F3F4F6'}
                 />
               }
             />
@@ -169,17 +167,17 @@ return(
               icon={<Moon size={20} color="#fff" />}
               title="Modo Escuro"
               subtitle="Ativar tema escuro para melhor visualização"
-              iconBackgroundClassName="bg-[#3C3A40]" 
+              iconBackgroundClassName="bg-[#3C3A40]"
               rightElement={
                 <Switch
-                  value={darkMode}
-                  onValueChange={setDarkMode}
+                  value={settings.darkmode}
+                  onValueChange={settingsStore.enableDarkMode}
                   trackColor={{ false: '#D1D5DB', true: '#32D74B' }}
-                  thumbColor={darkMode ? '#fff' : '#F3F4F6'}
+                  thumbColor={settings.darkmode ? '#fff' : '#F3F4F6'}
                 />
               }
             />
-          </View> 
+          </View>
         </View>
 
         <View className="px-6 py-8 items-center">
@@ -189,7 +187,7 @@ return(
           </Text>
         </View>
       </ScrollView>
-  </SafeAreaView>
-)
-  
+    </SafeAreaView>
+  )
+
 }
