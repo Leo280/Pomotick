@@ -1,7 +1,6 @@
-import useTask from '../../stores/TaskStore'
 import { DrawerToggleButton } from "@react-navigation/drawer";
 import { router } from "expo-router";
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   ScrollView,
   TouchableOpacity,
@@ -9,6 +8,7 @@ import {
 } from 'react-native';
 import { Text } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
+import useTask from '../../stores/TaskStore';
 import { CreateTaskModal } from '../components/CreateTaskModal';
 import { TaskCard } from '../components/TaskCard';
 
