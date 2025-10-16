@@ -2,7 +2,7 @@
 import { DrawerToggleButton } from "@react-navigation/drawer";
 import { View,  SafeAreaView, ScrollView, Image, TouchableOpacity} from "react-native";
 import { Text } from "react-native-gesture-handler";
-import Masthead from "../components/masthead";
+import Masthead from "../components/Masthead";
 import { Feather } from "@expo/vector-icons";
 
 
