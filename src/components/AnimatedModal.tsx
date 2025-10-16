@@ -13,8 +13,9 @@ interface AnimatedModalProps {
   onClose: () => void;
   onSave: (value: number) => void;
   initialValue?: number;
+  minValue: number;
   maxValue: number;
-  title: string; 
+  title: string;
 }
 
 export const AnimatedModal: React.FC<AnimatedModalProps> = ({
@@ -22,19 +23,18 @@ export const AnimatedModal: React.FC<AnimatedModalProps> = ({
   onClose,
   onSave,
   initialValue = 0,
+  minValue,
   maxValue,
   title,
 }) => {
   const [value, setValue] = useState(initialValue);
 
-   // Ajusta value sempre que o modal abrir
   useEffect(() => {
     if (visible) {
       setValue(initialValue);
     }
   }, [visible, initialValue]);
 
-  // Garante que value não ultrapasse maxValue
   useEffect(() => {
     if (value > maxValue) {
       setValue(maxValue);
@@ -42,7 +42,6 @@ export const AnimatedModal: React.FC<AnimatedModalProps> = ({
   }, [maxValue]);
 
 
-  // Animações de entrada e saída
   const opacity = useSharedValue(0);
   const translateY = useSharedValue(50);
 
@@ -76,7 +75,6 @@ export const AnimatedModal: React.FC<AnimatedModalProps> = ({
         className="flex-1 justify-center items-center bg-black/50"
         style={overlayStyle}
       >
-        {/* Fecha ao clicar fora */}
         <Pressable onPress={onClose} className="absolute w-full h-full" />
 
         <Animated.View
@@ -90,7 +88,7 @@ export const AnimatedModal: React.FC<AnimatedModalProps> = ({
           <Text className="text-gray-400 mb-1 text-center">Valor atual: {value} minutos</Text>
           <Slider
             style={{ width: "100%", height: 40 }}
-            minimumValue={0}
+            minimumValue={minValue}
             maximumValue={maxValue}
             step={1}
             value={value}

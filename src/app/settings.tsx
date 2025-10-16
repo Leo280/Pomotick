@@ -11,21 +11,20 @@ import {
   Volume2,
 } from 'lucide-react-native';
 import React, { useState } from "react";
-import { SafeAreaView, ScrollView, Switch, TouchableOpacity, View } from "react-native";
+import { ScrollView, Switch, TouchableOpacity, View } from "react-native";
 import { Text } from "react-native-gesture-handler";
 import { AnimatedModal } from "../components/AnimatedModal";
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 
 export default function SettingsScreen() {
   const settingsStore = useAppSettings()
   const settings = settingsStore.settings
 
-  const [visible, setVisible] = useState(false);
-  const [currentMax, setCurrentMax] = useState(0);
-  const [initialValue, setinitialValue] = useState(0);
-  const [modalTitle, setModalTitle] = useState("");
-  
-  
+  const [visibleFocus, setVisibleFocus] = useState(false);
+  const [visibleShortPause, setVisibleShortPause] = useState(false);
+  const [visibleLongPause, setVisibleLongPause] = useState(false);
+  const [_, setModalTitle] = useState("");
 
   const SettingRow = ({
     icon,
@@ -71,17 +70,42 @@ export default function SettingsScreen() {
         <DrawerToggleButton tintColor='#172554' />
       </View>
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-       <AnimatedModal
-        visible={visible}
-        initialValue={initialValue}
-        maxValue={currentMax}
-        title={modalTitle} 
-        onClose={() => setVisible(false)}
-        onSave={(newValue) => setinitialValue(newValue)
-        
-        }
-      />
-      
+        <AnimatedModal
+          visible={visibleFocus}
+          initialValue={settings.focusDuration / 60000}
+          minValue={25}
+          maxValue={60}
+          title="Escolha o tempo de duração do Foco"
+          onClose={() => setVisibleFocus(false)}
+          onSave={(newValue) => {
+            settingsStore.changeFocusDuration(newValue * 60000);
+            setVisibleFocus(false);
+          }}
+        />
+        <AnimatedModal
+          visible={visibleShortPause}
+          initialValue={settings.shortPause / 60000}
+          minValue={5}
+          maxValue={20}
+          title="Escolha o tempo das pausas curtas"
+          onClose={() => setVisibleShortPause(false)}
+          onSave={(newValue) => {
+            settingsStore.changeShortPauseDuration(newValue * 60000);
+            setVisibleShortPause(false);
+          }}
+        />
+        <AnimatedModal
+          visible={visibleLongPause}
+          initialValue={settings.longPause / 60000}
+          minValue={15}
+          maxValue={45}
+          title="Escolha o tempo das pausas longas"
+          onClose={() => setVisibleLongPause(false)}
+          onSave={(newValue) => {
+            settingsStore.changeLongPauseDuration(newValue * 60000);
+            setVisibleLongPause(false);
+          }}
+        />
         <View className="mt-6 shadow-2xl">
           <Text className="text-base font-semibold text-gray-800 px-6 mb-3">Perfil</Text>
           <View className="bg-white mx-6 rounded-3xl shadow-sm">
@@ -106,12 +130,9 @@ export default function SettingsScreen() {
               showArrow
               iconBackgroundClassName="bg-[#270C56]"
               onPress={() => {
-                setVisible(true);
+                setVisibleFocus(true);
                 setModalTitle("Escolha o tempo de duração do Foco");
-                setCurrentMax(60);
-                setinitialValue(0);
-                
-              } }
+              }}
 
             />
             <View className="h-px bg-gray-200 ml-17" />
@@ -121,12 +142,10 @@ export default function SettingsScreen() {
               subtitle={`${settings.shortPause / 60000} minutos`}
               showArrow
               iconBackgroundClassName="bg-[#7C53C2]"
-               onPress={() => {
-                setVisible(true);
+              onPress={() => {
+                setVisibleShortPause(true);
                 setModalTitle("Escolha o tempo das pausas curtas");
-                setCurrentMax(10);
-                setinitialValue(0);
-              } }
+              }}
             />
             <View className="h-px bg-gray-200 ml-17" />
             <SettingRow
@@ -135,12 +154,10 @@ export default function SettingsScreen() {
               subtitle={`${settings.longPause / 60000} minutos`}
               showArrow
               iconBackgroundClassName="bg-[#573397]"
-               onPress={() => {
-                setVisible(true);
-                setCurrentMax(30);
+              onPress={() => {
+                setVisibleLongPause(true);
                 setModalTitle("Escolha o tempo das pausas longas");
-                setinitialValue(0);
-              } }
+              }}
             />
           </View>
         </View>
@@ -224,5 +241,4 @@ export default function SettingsScreen() {
       </ScrollView>
     </SafeAreaView>
   )
-
 }
