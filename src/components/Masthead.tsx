@@ -1,4 +1,5 @@
-import { Image, ImageSourcePropType, SafeAreaView, Text, View } from "react-native";
+import { Image, ImageSourcePropType, Text, View } from "react-native";
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 interface MastheadProps {
   title: string,
