@@ -34,9 +34,9 @@ return(
           <Image className="w-20 h-20 rounded-full" source={require('../../assets/images/Carlos-perfil.jpg')} />
         </View>
         <View className="mt-6">
-            <Text className="text-2xl text-gray-900 p-4 font-extrabold ">Sobre o projeto</Text>
-          <Text className="text-base text-justify pl-6 pr-6 pb-6 text-black">
-            Este Projeto apresenta a proposta de desenvolvimento de um aplicativo baseado na metodologia Pomodoro com o objetivo de auxiliar usuários na gestão do tempo e aumento da produtividade. Motivado pelo impacto negativo das distrações digitais no foco e desempenho de estudantes e profissionais, o projeto visa transformar a tecnologia em aliada, proporcionando ciclos de trabalho focados intercalados com pausas, conforme o método criado por Francesco Cirillo. Até o momento, o projeto estabeleceu uma base teórica sobre a falta de foco e demonstrou a viabilidade técnica através de prototipagem, definindo funcionalidades e compreendendo as necessidades dos usuários. 
+            <Text className="text-2xl text-neutral-700 p-4 font-extrabold ">Sobre o projeto</Text>
+          <Text className="text-base text-justify pl-6 pr-6 pb-6 text-netral-800">
+            Este Projeto apresenta a proposta de desenvolvimento de um aplicativo baseado na metodologia Pomodoro com o objetivo de auxiliar usuários na gestão do tempo e aumento da produtividade. Motivado pelo impacto negativo das distrações digitais no foco e desempenho de estudantes e profissionais, o projeto visa transformar a tecnologia em aliada, proporcionando ciclos de trabalho focados intercalados com pausas, conforme o método criado por Francesco Cirillo.  
           </Text>
         </View>
         <View className="flex-row items-center justify-center mt-2">

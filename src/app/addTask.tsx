@@ -1,7 +1,7 @@
 import useTask from "@/stores/TaskStore";
 import { DrawerToggleButton } from "@react-navigation/drawer";
 import { router } from 'expo-router';
-import { Clock, Minus, Plus, Target } from 'lucide-react-native';
+import { Clock, Minus, Plus, Pause } from 'lucide-react-native';
 import { useState } from 'react';
 import {
   SafeAreaView,
@@ -73,7 +73,7 @@ export default function addTask() {
                 {presetOptions.map((preset) => (
                   <TouchableOpacity
                     key={preset}
-                    className={`border rounded-full px-4 py-3 min-w-15 items-center ${pomodoros === preset
+                    className={`border rounded-full px-4 py-3 min-w-12 items-center ${pomodoros === preset
                       ? 'bg-black border-black'
                       : 'bg-white border-black'
                       }`}
@@ -125,7 +125,7 @@ export default function addTask() {
                 <Text className="text-sm text-gray-500 ml-2">Tempo total: {totalMinutes} min</Text>
               </View>
               <View className="flex-row items-center">
-                <Target size={16} color="#6B7280" />
+                <Pause size={16} color="#6B7280" />
                 <Text className="text-sm text-gray-500 ml-2">
                   Pausas: {Math.floor(pomodoros / 4)} longas, {pomodoros - Math.floor(pomodoros / 4)} curtas
                 </Text>
@@ -145,7 +145,7 @@ export default function addTask() {
         </View>
       </ScrollView>
 
-      <View className=" flex-row items-center justify-center bg-white ">
+      <View className=" flex-row items-center justify-center bg-white mt-4 ">
         <TouchableOpacity
           className={`rounded-full py-4 flex-row items-center justify-center gap-2 w-56 mb-5 ${!title.trim() ? 'bg-gray-300' : 'bg-blue-500'
             }`}
