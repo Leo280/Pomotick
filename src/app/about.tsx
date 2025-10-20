@@ -12,20 +12,20 @@ export default function About() {
 
 return(
 
-  <SafeAreaView className="flex-1 bg-black ">
+  <SafeAreaView className="flex-1 ">
     <Masthead  title="Sobre"
     image={require('../../assets/images/img_masthead.png')}
     >
-    <View className="flex-row justify-between items-center pt-10">
+    <View className="flex-row justify-between items-center">
         <View className="flex-row justify-center pl-3">
           <Feather name="alert-circle" size={22} color={'#fff'}/>
-            <Text className="text-2xl text-white pl-3 font-bold">Sobre a Aplicação</Text>
+            <Text className="text-2xl text-white pl-3 font-bold">Sobre</Text>
             
         </View>
         <DrawerToggleButton tintColor="white" />
       </View>
     </Masthead>
-    <ScrollView className="flex-1 bg-white pt-3 rounded-t-2xl z-2">
+    <ScrollView className="flex-1 bg-white   rounded-t-2xl z-2">
         <Text className="text-2xl text-gray-900 p-4 font-extrabold ">Criadores</Text>
         <View className="flex-row items-center gap-6 justify-center">
           <Image className="w-20 h-20 rounded-full" source={require('../../assets/images/Jesua-perfil.jpg')} />
@@ -40,7 +40,7 @@ return(
           </Text>
         </View>
         <View className="flex-row items-center justify-center mt-2">
-          <TouchableOpacity className="bg-blue-950 w-96 h-12 flex-row items-center justify-center rounded-3xl gap-2">
+          <TouchableOpacity className="bg-blue-950 w-96 h-12 flex-row items-center justify-center rounded-3xl gap-2 mt-8">
             <Feather name="github" size={20} color={'#fff'}/>
             <Text className="text-white font-bold">Vá para o Repositório do Projeto</Text>
           </TouchableOpacity>

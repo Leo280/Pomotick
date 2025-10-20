@@ -11,6 +11,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import useTask from '../../stores/TaskStore';
 import { CreateTaskModal } from '../components/CreateTaskModal';
 import { TaskCard } from '../components/TaskCard';
+import { Search } from "../components/Search";
+import { Octicons } from '@expo/vector-icons';
 
 
 
@@ -49,8 +51,29 @@ export default function Tasks() {
         </View>
         <DrawerToggleButton tintColor='#172554' />
       </View>
-      <SafeAreaView className="flex-1 bg-white">
-        <Text className="text-base text-blue-950 px-6 -mt-2 mb-6">Gerencie seu tempo com foco</Text>
+      <Search />
+      <View className="flex-row justify-stretch items-center gap-8 mt-4 mb-4 ml-4">
+        <TouchableOpacity className="d-flex flex-row items-center p-2 border border-zinc-300 rounded-lg w-22 h-10"  onPress={() => {console.log('Favoritos')}}>
+           <Octicons
+        name={'heart'}
+        size={18}
+        color={'#1F2937 '}
+       
+            />
+      <Text className="text-gray-800 font-semibold"> Favoritos </Text>
+        </TouchableOpacity>
+        <TouchableOpacity className="d-flex flex-row items-center p-2 border border-zinc-300 rounded-lg w-42 h-10" onPress={() => {console.log('Tarefas concluídas')}}>
+            <Octicons
+        name={'clock'}
+        size={18}
+        color={'#1F2937'}
+
+      
+            />
+      <Text className="text-gray-800 font-semibold"> Histórico de Tarefas </Text>
+        </TouchableOpacity>
+      </View>
+      <SafeAreaView className="flex-1 bg-white mt-8">
         <View className="flex-row justify-between items-center px-6 mb-4">
           <Text className="text-xl font-semibold text-blue-950">Suas Tarefas</Text>
           <TouchableOpacity

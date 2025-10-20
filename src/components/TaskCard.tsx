@@ -1,5 +1,5 @@
 import { Task } from '@/types/Task';
-import { CircleCheck as CheckCircle, Clock, Pause, Play } from 'lucide-react-native';
+import { CircleCheck as CheckCircle, Clock, Pause, Play, Trash2 } from 'lucide-react-native';
 import { Text, TouchableOpacity, View } from 'react-native';
 import FavoriteButton from './FavoriteButton';
 
@@ -28,36 +28,22 @@ export function TaskCard({ task, onStart, onPause }: TaskCardProps) {
             className="h-1.5 bg-primary-500 rounded-full"
             style={{ width: `${progress}%` }}
           />
-        </View>
+        </View> 
         <Text className="text-sm font-semibold text-gray-500 min-w-8">
           {task.completedPomodoros}/{task.totalPomodoros}
         </Text>
       </View>
 
       <View className="flex-row items-center">
-        <View className="flex-row items-center gap-44 justify-between ">
+        <View className="flex-row items-center justify-between flex-1 mr-2">
           <View className='flex-row items-center'><Clock size={16} color="#6B7280" />
             <Text className="text-sm text-gray-500 ml-1.5">{totalMinutes} min</Text>
           </View>
-          <TouchableOpacity
-            className={`w-20 h-8 rounded-2xl flex-row justify-center gap-2 items-center first-letter:lex-row bg-blue-600`}
-            onPress={task.isActive ? onPause : onStart}
-          >
-            {task.isActive ? (
-              <Pause size={15} color="white" title='Pausar' />
-            ) : (
-              <Play size={15} color="white" title='Iniciar' />
-            )}
-            <Text className='text-white'>Iniciar</Text>
+          <TouchableOpacity onPress={() => {console.log('Excluir tarefa')}} >
+            <Trash2 size={22} color="#6B7280" />
           </TouchableOpacity>
+    
         </View>
-
-        {task.completedPomodoros === task.totalPomodoros && (
-          <View className="flex-row items-center">
-            <CheckCircle size={16} color="#10B981" />
-            <Text className="text-sm text-green-600 font-semibold ml-1.5">Concluída</Text>
-          </View>
-        )}
       </View>
     </View>
   );

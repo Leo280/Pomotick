@@ -3,6 +3,7 @@ import { Drawer } from "expo-router/drawer";
 import '../styles/global.css';
 import { useFrameworkReady } from "@/hooks/UseFrameworkReady";
 
+
 export default function Layout() {
   useFrameworkReady()
 
@@ -31,7 +32,7 @@ export default function Layout() {
 
     }}>
 
-
+     
 
       <Drawer.Screen
         name="index" options={{
