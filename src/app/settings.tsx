@@ -62,7 +62,7 @@ export default function SettingsScreen() {
   );
   return (
 
-    <SafeAreaView className="flex-1 p-6 pt-9 bg-gray-100">
+    <SafeAreaView className="flex-1 p-4 bg-gray-100">
       <View className="flex-row justify-between items-center ml-28">
         <View className='flex-row justify-center items-center pt-5'>
           <Text className="text-2xl text-blue-950 pl-3 font-bold">Configurações</Text>
