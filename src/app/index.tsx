@@ -1,23 +1,22 @@
+import { Octicons } from '@expo/vector-icons';
 import { DrawerToggleButton } from "@react-navigation/drawer";
+import { FlashList } from '@shopify/flash-list';
 import { router } from "expo-router";
 import { useState } from 'react';
 import {
-  ScrollView,
+  Alert,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 import { Text } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 import useTask from '../../stores/TaskStore';
 import { CreateTaskModal } from '../components/CreateTaskModal';
-import { TaskCard } from '../components/TaskCard';
 import { Search } from "../components/Search";
-import { Octicons } from '@expo/vector-icons';
-
+import { TaskCard } from '../components/TaskCard';
 
 
 export default function Tasks() {
-
   const { tasks, addTask, setActiveTask, pauseActiveTask } = useTask()
   const [showCreateModal, setShowCreateModal] = useState(false);
 
@@ -30,6 +29,11 @@ export default function Tasks() {
   const activeTask = tasks.find(task => task.isActive);
 
   const handleCreateTask = (title: string, pomodoros: number) => {
+    const trimmedText = title.trim()
+    const isDuplicate = tasks.some(task => task.title.trim().toLowerCase() === trimmedText.toLowerCase())
+    if (isDuplicate) {
+      Alert.alert('Essa tarefa já existe', 'Uma tarefa com este título já existe, tente adicionar outra!')
+    }
     addTask(title, pomodoros);
     setShowCreateModal(false);
   };
@@ -53,24 +57,24 @@ export default function Tasks() {
       </View>
       <Search />
       <View className="flex-row justify-stretch items-center gap-8 mt-4 mb-4 ml-4">
-        <TouchableOpacity className="d-flex flex-row items-center p-2 border border-zinc-300 rounded-lg w-22 h-10"  onPress={() => {console.log('Favoritos')}}>
-           <Octicons
-        name={'heart'}
-        size={18}
-        color={'#1F2937 '}
-       
-            />
-      <Text className="text-gray-800 font-semibold"> Favoritos </Text>
-        </TouchableOpacity>
-        <TouchableOpacity className="d-flex flex-row items-center p-2 border border-zinc-300 rounded-lg w-42 h-10" onPress={() => {console.log('Tarefas concluídas')}}>
-            <Octicons
-        name={'clock'}
-        size={18}
-        color={'#1F2937'}
+        <TouchableOpacity className="d-flex flex-row items-center p-2 border border-zinc-300 rounded-lg w-22 h-10" onPress={() => { router.push("/favorites") }}>
+          <Octicons
+            name={'heart'}
+            size={18}
+            color={'#1F2937 '}
 
-      
-            />
-      <Text className="text-gray-800 font-semibold"> Histórico de Tarefas </Text>
+          />
+          <Text className="text-gray-800 font-semibold"> Favoritos </Text>
+        </TouchableOpacity>
+        <TouchableOpacity className="d-flex flex-row items-center p-2 border border-zinc-300 rounded-lg w-42 h-10" onPress={() => { console.log('Tarefas concluídas') }}>
+          <Octicons
+            name={'clock'}
+            size={18}
+            color={'#1F2937'}
+
+
+          />
+          <Text className="text-gray-800 font-semibold"> Histórico de Tarefas </Text>
         </TouchableOpacity>
       </View>
       <SafeAreaView className="flex-1 bg-white mt-8">
@@ -84,16 +88,17 @@ export default function Tasks() {
           </TouchableOpacity>
         </View>
 
-        <ScrollView className="flex-1 px-6" showsVerticalScrollIndicator={false}>
-          {tasks.map((task) => (
-            <TaskCard
-              key={task.id}
-              task={task}
-              onStart={() => handleStartTask(task.id)}
+        <FlashList
+          renderItem={({ item }) => {
+            return <TaskCard
+              key={item.id}
+              task={item}
+              onStart={() => handleStartTask(item.id)}
               onPause={handlePauseTask}
             />
-          ))}
-        </ScrollView>
+          }}
+          data={tasks}
+        />
 
         <CreateTaskModal
           visible={showCreateModal}
