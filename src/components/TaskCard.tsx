@@ -1,5 +1,6 @@
+import useTask from '@/stores/TaskStore';
 import { Task } from '@/types/Task';
-import { CircleCheck as CheckCircle, Clock, Pause, Play, Trash2 } from 'lucide-react-native';
+import { Clock, Trash2 } from 'lucide-react-native';
 import { Text, TouchableOpacity, View } from 'react-native';
 import FavoriteButton from './FavoriteButton';
 
@@ -10,6 +11,7 @@ interface TaskCardProps {
 }
 
 export function TaskCard({ task, onStart, onPause }: TaskCardProps) {
+  const { deleteTask } = useTask()
   const progress = (task.completedPomodoros / task.totalPomodoros) * 100;
   const totalMinutes = task.totalPomodoros * 25;
 
@@ -19,7 +21,7 @@ export function TaskCard({ task, onStart, onPause }: TaskCardProps) {
         <Text className="text-lg font-bold text-gray-800 flex-1 mr-3 leading-6" numberOfLines={2}>
           {task.title}
         </Text>
-        <FavoriteButton id={task.id} isFavorite={task.isFavorite} />
+        <FavoriteButton id={task.id} isFavorite={task.isFavorite} canUnfavorite={false} />
       </View>
 
       <View className="flex-row items-center mb-3">
@@ -28,7 +30,7 @@ export function TaskCard({ task, onStart, onPause }: TaskCardProps) {
             className="h-1.5 bg-primary-500 rounded-full"
             style={{ width: `${progress}%` }}
           />
-        </View> 
+        </View>
         <Text className="text-sm font-semibold text-gray-500 min-w-8">
           {task.completedPomodoros}/{task.totalPomodoros}
         </Text>
@@ -39,10 +41,10 @@ export function TaskCard({ task, onStart, onPause }: TaskCardProps) {
           <View className='flex-row items-center'><Clock size={16} color="#6B7280" />
             <Text className="text-sm text-gray-500 ml-1.5">{totalMinutes} min</Text>
           </View>
-          <TouchableOpacity onPress={() => {console.log('Excluir tarefa')}} >
+          <TouchableOpacity onPress={() => deleteTask(task.id)} >
             <Trash2 size={22} color="#6B7280" />
           </TouchableOpacity>
-    
+
         </View>
       </View>
     </View>
