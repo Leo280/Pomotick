@@ -33,7 +33,6 @@ export default function Layout() {
     }}>
 
      
-
       <Drawer.Screen
         name="index" options={{
           drawerLabel: 'Tarefas',
@@ -69,6 +68,14 @@ export default function Layout() {
       <Drawer.Screen
         name="about" options={{
           drawerLabel: 'Sobre',
+          drawerIcon: ({ color }) => (<Feather name="alert-circle" size={20} color={color} />
+
+          ),
+        }}
+      />
+      <Drawer.Screen
+        name="login" options={{
+          drawerLabel: 'Login',
           drawerIcon: ({ color }) => (<Feather name="alert-circle" size={20} color={color} />
 
           ),
