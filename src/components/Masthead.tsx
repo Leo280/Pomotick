@@ -1,5 +1,5 @@
 import { Image, ImageSourcePropType, Text, View } from "react-native";
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface MastheadProps {
   title: string,
@@ -14,10 +14,11 @@ export default function Masthead({ image, children }: MastheadProps) {
         source={image}
         alt="masthead image"
       />
-      {children}
-      <View className="flex-1" />
-      <Text className="color-white p-20 font-bold text-lg"></Text>
-    </SafeAreaView>
+      <View className="items-center justify-center -mt-5">
+        {children}
+      </View>
+      <Text className="color-white p-20 font-bold text-lg" />
+    </SafeAreaView >
   )
 }
 
