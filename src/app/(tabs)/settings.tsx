@@ -13,7 +13,7 @@ import {
 import React, { useState } from "react";
 import { ScrollView, Switch, TouchableOpacity, View } from "react-native";
 import { Text } from "react-native-gesture-handler";
-import { AnimatedModal } from "../components/AnimatedModal";
+import { AnimatedModal } from "../../components/AnimatedModal";
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 

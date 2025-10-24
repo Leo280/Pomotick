@@ -162,9 +162,8 @@ export default function StudyScreen() {
           {[...Array(POMODORO_COUNT)].map((_, index) => (
             <View
               key={index}
-              className={`w-8 h-8 rounded-full ${
-                index < completedPomodoros ? 'bg-blue-400' : 'bg-gray-300'
-              }`}
+              className={`w-8 h-8 rounded-full ${index < completedPomodoros ? 'bg-blue-400' : 'bg-gray-300'
+                }`}
             />
           ))}
         </View>

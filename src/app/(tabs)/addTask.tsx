@@ -1,19 +1,16 @@
 import useTask from "@/stores/TaskStore";
 import { DrawerToggleButton } from "@react-navigation/drawer";
 import { router } from 'expo-router';
-import { Clock, Minus, Plus, Pause } from 'lucide-react-native';
+import { Clock, Minus, Pause, Plus } from 'lucide-react-native';
 import { useState } from 'react';
 import {
-  SafeAreaView,
   ScrollView,
   TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
 import { Text } from "react-native-gesture-handler";
-
-
-
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function addTask() {
 
@@ -145,7 +142,7 @@ export default function addTask() {
         </View>
       </ScrollView>
 
-      <View className=" flex-row items-center justify-center bg-white mt-4 ">
+      <View className=" flex-row items-center justify-center bg-white mt-4 mb-8">
         <TouchableOpacity
           className={`rounded-full py-4 flex-row items-center justify-center gap-2 w-56 mb-5 ${!title.trim() ? 'bg-gray-300' : 'bg-blue-500'
             }`}
