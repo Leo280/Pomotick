@@ -41,6 +41,10 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "SUPABASE_URL": "https://gmxnehqhisrduznlqlhz.supabase.co",
+      "SUPABASE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdteG5laHFoaXNyZHV6bmxxbGh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzMzY3MjUsImV4cCI6MjA3NjkxMjcyNX0.CfmT4qvZ_plfJGrgxKhvPmsfyNMRz47SrWsm9_8kNtI"
     }
   }
 }

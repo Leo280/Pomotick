@@ -1,10 +1,9 @@
 import { supabase } from "@/libs/supabase";
-import { useRouter } from "expo-router";
+import { Redirect } from "expo-router";
 import { useEffect, useState } from "react";
 
 export default function Index() {
   const [session, setSession] = useState<any>(null)
-  const router = useRouter()
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -19,8 +18,8 @@ export default function Index() {
   }, [])
 
   if (!session) {
-    router.navigate("/login")
+    return <Redirect href={"/login"} />
   } else {
-    router.navigate("/")
+    return <Redirect href={"/(tabs)"} />
   }
 } 
