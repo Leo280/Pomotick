@@ -34,7 +34,7 @@ export default function Login() {
   };
   return (
 
-    <SafeAreaView className="flex-1 ">
+    <SafeAreaView className="flex-1 bg-blue-950 ">
       <LoginMasthead title="Sobre"
         image={require('../../assets/images/tomato.png')}
       />
@@ -77,12 +77,12 @@ export default function Login() {
           />
           {errors.password && <Text>{errors.password.message}</Text>}
           <View className="flex-row items-center justify-center mb-4 ">
-            <TouchableOpacity onPress={handleSubmit(onSignIn)} className="bg-blue-600 w-52 h-12 flex-row items-center justify-center rounded-full gap-2 mt-8">
+            <TouchableOpacity onPress={handleSubmit(onSignIn)} className="bg-blue-600 w-64 h-12 flex-row items-center justify-center rounded-full gap-2 mt-8">
               <Text className="text-white font-bold text-lg">Entrar</Text>
             </TouchableOpacity>
           </View>
           <View className="flex-row items-center justify-center">
-            <TouchableOpacity onPress={() => router.navigate("/signUp")} className="bg-blue-300 w-52 h-12 flex-row items-center justify-center rounded-full gap-2 mt-8">
+            <TouchableOpacity onPress={() => router.navigate("/signUp")} className="bg-blue-400 w-64 h-12 flex-row items-center justify-center rounded-full gap-2 mt-8">
               <Text className="text-white font-bold text-lg">Criar Conta</Text>
             </TouchableOpacity>
           </View>

@@ -9,7 +9,7 @@ interface MastheadProps {
 
 export default function Masthead({ image, children }: MastheadProps) {
   return (
-    <SafeAreaView>
+    <SafeAreaView className="">
       <Image className="absolute bottom-0 left-0 right-0 top-0 w-full h-96 object-cover"
         source={image}
         alt="masthead image"
