@@ -22,19 +22,25 @@ export default function TabLayout() {
       <Tabs.Screen name="addTask" options={{
         title: 'Nova Tarefa',
         tabBarIcon: ({ focused, color, size }) => (
-          <Ionicons name={focused ? 'create' : 'create-outline'} size={size} color={color} />
+          <Ionicons name={focused ? 'add-circle' : 'add-circle-outline'} size={size} color={color} />
         )
       }} />
       <Tabs.Screen name="settings" options={{
         title: 'Ajustes',
         tabBarIcon: ({ focused, color, size }) => (
-          <Ionicons name={focused ? 'settings' : 'settings-outline'} size={size} color={color} />
+          <Ionicons name={focused ? 'options' : 'options-outline'} size={size} color={color} />
         )
       }} />
       <Tabs.Screen name="about" options={{
         title: 'Sobre',
         tabBarIcon: ({ focused, color, size }) => (
           <Ionicons name={focused ? 'information-circle' : 'information-circle-outline'} size={size} color={color} />
+        )
+      }} />
+      <Tabs.Screen name="statistic" options={{
+        title: 'Estatísticas',
+        tabBarIcon: ({ focused, color, size }) => (
+          <Ionicons name={focused ? 'thumbs-down' : 'thumbs-down-outline'} size={size} color={color} />
         )
       }} />
     </Tabs>
