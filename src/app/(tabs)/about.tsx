@@ -13,9 +13,8 @@ export default function About() {
         image={require('../../../assets/images/img_masthead.png')}
       >
         <View className="flex-row justify-between items-center">
-          <View className="flex-row justify-center pl-3">
-            <Feather name="alert-circle" size={22} color={'#fff'} />
-            <Text className="text-2xl text-white pl-3 font-bold">Sobre</Text>
+          <View className="flex-row justify-center">
+            <Text className="text-2xl text-white font-bold">Sobre a Aplicação</Text>
           </View>
         </View>
       </Masthead>
@@ -34,7 +33,7 @@ export default function About() {
           </Text>
         </View>
         <View className="flex-row items-center justify-center mt-2">
-          <TouchableOpacity className="bg-blue-950 w-96 h-12 flex-row items-center justify-center rounded-3xl gap-2 mt-8">
+          <TouchableOpacity className="bg-blue-950 w-96 h-12 flex-row items-center justify-center rounded-3xl gap-2">
             <Feather name="github" size={20} color={'#fff'} />
             <Text className="text-white font-bold">Vá para o Repositório do Projeto</Text>
           </TouchableOpacity>
