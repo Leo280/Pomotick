@@ -1,3 +1,4 @@
+import { useTaskList } from '@/api/tasks';
 import { CreateTaskModal } from '@/src/components/CreateTaskModal';
 import { Search } from "@/src/components/Search";
 import { TaskCard } from '@/src/components/TaskCard';
@@ -8,7 +9,7 @@ import { FlashList } from '@shopify/flash-list';
 import { router } from "expo-router";
 import { useState } from 'react';
 import {
-  Alert,
+  ActivityIndicator,
   TouchableOpacity,
   View
 } from 'react-native';
@@ -17,8 +18,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 
 export default function Tasks() {
-  const { tasks, addTask, setActiveTask, pauseActiveTask } = useTask()
+  const { addTask, setActiveTask, pauseActiveTask } = useTask()
+  const { data: tasks, error, isLoading } = useTaskList()
   const [showCreateModal, setShowCreateModal] = useState(false);
+
+  if (isLoading) return <ActivityIndicator />
+
+  if (error) console.error(error.message)
 
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
@@ -26,17 +32,7 @@ export default function Tasks() {
     return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
-  const activeTask = tasks.find(task => task.isActive);
-
-  const handleCreateTask = (title: string, pomodoros: number) => {
-    const trimmedText = title.trim()
-    const isDuplicate = tasks.some(task => task.title.trim().toLowerCase() === trimmedText.toLowerCase())
-    if (isDuplicate) {
-      Alert.alert('Essa tarefa já existe', 'Uma tarefa com este título já existe, tente adicionar outra!')
-    }
-    addTask(title, pomodoros);
-    setShowCreateModal(false);
-  };
+  const activeTask = tasks?.find(task => task.is_active);
 
   const handleStartTask = (taskId: string) => {
     setActiveTask(taskId);
@@ -103,7 +99,7 @@ export default function Tasks() {
         <CreateTaskModal
           visible={showCreateModal}
           onClose={() => setShowCreateModal(false)}
-          onSubmit={handleCreateTask}
+          onSubmit={() => console.log("Tarefa criada")}
         />
       </SafeAreaView>
     </SafeAreaView>

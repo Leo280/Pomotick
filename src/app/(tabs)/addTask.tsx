@@ -1,3 +1,4 @@
+import { useInsertTask } from "@/api/tasks";
 import useTask from "@/stores/TaskStore";
 import { DrawerToggleButton } from "@react-navigation/drawer";
 import { router } from 'expo-router';
@@ -15,6 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function addTask() {
 
   const { addTask } = useTask();
+  const { mutate: insertTask } = useInsertTask()
   const [title, setTitle] = useState('');
   const [pomodoros, setPomodoros] = useState(4);
 
@@ -27,8 +29,10 @@ export default function addTask() {
   const presetOptions = [2, 4, 6, 8];
 
   const handleCreateTask = () => {
+    console.log("Criando task com título:", title, "e pomodoros:", pomodoros);
     if (title.trim()) {
       addTask(title.trim(), pomodoros);
+      insertTask({ title, pomodoros })
       setTitle('');
       setPomodoros(4);
       router.push('/');
