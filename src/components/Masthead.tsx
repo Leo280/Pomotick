@@ -14,7 +14,7 @@ export default function Masthead({ image, children }: MastheadProps) {
         source={image}
         alt="masthead image"
       />
-      <View className="items-center justify-center -mt-5">
+      <View className="items-center justify-center">
         {children}
       </View>
       <Text className="color-white p-20 font-bold text-lg" />

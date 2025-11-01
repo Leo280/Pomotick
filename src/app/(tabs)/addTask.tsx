@@ -37,13 +37,10 @@ export default function addTask() {
 
   return (
 
-    <SafeAreaView className="flex-1 p-6 pt-9 bg-white">
-      <View className="flex-row justify-between items-center pt-5">
-        <View className='flex-row justify-center items-center'>
+    <SafeAreaView className="flex-1  pt-9 bg-white">
+        <View className='flex-row justify-center items-center w-100%'>
           <Text className="text-2xl text-blue-950 pl-3 font-bold">Criar Tarefas</Text>
         </View>
-        <DrawerToggleButton tintColor="#172554" />
-      </View>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View className="px-6 pt-6">
           <View className="mb-8">
@@ -61,8 +58,35 @@ export default function addTask() {
             <Text className="text-xs text-gray-400 text-right mt-2">{title.length}/100</Text>
           </View>
 
+          <View className="mb-6">
+            <Text className="text-xl font-semibold text-gray-800">Como estou me sentindo?</Text>
+            <Text className="text-gray-500">Escolha entre as opções abaixo, qual seu estado mental no momento.</Text>
+            <View className="bg-white rounded-xl p-4 mt-5 shadow-2xl flex-row justify-between items-center gap-3">
+              <TouchableOpacity className="flex-col items-center justify-center">
+                <Text className="text-3xl">😞</Text>
+                <Text className="text-gray-500 text-sm">Esgotado</Text>
+              </TouchableOpacity>
+              <TouchableOpacity className="flex-col items-center justify-center">
+                <Text className="text-3xl">🥱</Text>
+                <Text className="text-gray-500 text-sm">Cansado</Text>
+              </TouchableOpacity>
+              <TouchableOpacity className="flex-col items-center justify-center">
+                <Text className="text-3xl">😐</Text>
+                <Text className="text-gray-500 text-sm">Normal</Text>
+              </TouchableOpacity>
+              <TouchableOpacity className="flex-col items-center justify-center">
+                <Text className="text-3xl">😀</Text>
+                <Text  className="text-gray-500 text-sm">Disposto</Text>
+              </TouchableOpacity>
+              <TouchableOpacity className="flex-col items-center justify-center">
+                <Text className="text-3xl">🤩</Text>
+                <Text className="text-gray-500 text-sm">Pra cima</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
           <View className="mb-8">
-            <Text className="text-lg font-semibold text-gray-800 mb-3">Duração</Text>
+            <Text className="text-lg font-semibold text-gray-800 mb-3">Ciclos</Text>
 
             <View className="mb-6">
               <Text className="text-sm font-medium text-gray-500 mb-3">Opções rápidas:</Text>

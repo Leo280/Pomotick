@@ -49,12 +49,6 @@ export default function Tasks() {
   return (
 
     <SafeAreaView className="flex-1 p-6 bg-white">
-      <View className="flex-row justify-between items-center">
-        <View className='flex-row justify-center '>
-          <Text className="text-2xl text-blue-950 pl-3 font-bold"></Text>
-        </View>
-        <DrawerToggleButton tintColor='#172554' />
-      </View>
       <Search />
       <View className="flex-row justify-stretch items-center gap-8 mt-4 mb-4 ml-4">
         <TouchableOpacity className="d-flex flex-row items-center p-2 border border-zinc-300 rounded-lg w-22 h-10" onPress={() => { router.push("/favorites") }}>
