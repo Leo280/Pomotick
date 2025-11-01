@@ -6,8 +6,14 @@ import { Alert, ScrollView, Text, TextInput, TouchableOpacity, View } from "reac
 import { SafeAreaView } from "react-native-safe-area-context";
 import { z } from 'zod';
 import LoginMasthead from "../components/LoginMasthead";
+import Dropdown from "../components/Dropdown";
+
 
 const signUpFormSchema = z.object({
+
+  nome: z.string()
+    .nonempty('O nome é obrigatório')
+    .min(4, 'O nome deve ter no mínimo 4 caracteres'),
   email: z.string()
     .nonempty('E-mail é obrigatório')
     .email('E-mail inválido'),
@@ -36,15 +42,28 @@ export default function Login() {
   }
   return (
 
-    <SafeAreaView className="flex-1 bg-blue-950 ">
-      <LoginMasthead title="Sobre"
-        image={require('../../assets/images/tomato.png')}
-      />
-      <ScrollView className="flex-1 bg-white rounded-t-2xl z-2">
+    <SafeAreaView className="flex-1 bg-white ">
+      <View className="flex-1 bg-white">
         <View className="flex-col items-center gap-2 justify-center mt-12">
           <Text className="font-bold text-2xl ">Cadastre-se no Pomotick</Text>
         </View>
         <View className="mt-2">
+            <Text className="text-base text-gray-900 p-2 font-extrabold ms-6">Nome</Text>
+          <Controller
+            control={control}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                placeholder="Digite seu nome"
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                className="border border-gray-300 rounded-full p-4 mx-6"
+              />
+            )}
+            name="nome"
+          />
+          <Text className="text-base text-gray-900 p-2 font-extrabold ms-6">Genêro</Text>
+          <Dropdown />
           <Text className="text-base text-gray-900 p-2 font-extrabold ms-6">E-mail</Text>
           <Controller
             control={control}
@@ -103,7 +122,7 @@ export default function Login() {
             <Text className="text-white font-bold text-lg">Login</Text>
           </TouchableOpacity>
         </View>
-      </ScrollView>
+      </View>
     </SafeAreaView>
   )
 }
