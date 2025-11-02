@@ -1,6 +1,7 @@
 import { supabase } from "@/libs/supabase";
+import { useAuthStore } from "@/stores/AuthStore";
 import { Redirect } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { ActivityIndicator, AppState, View } from "react-native";
 
 AppState.addEventListener('change', (state) => {
@@ -12,14 +13,10 @@ AppState.addEventListener('change', (state) => {
 })
 
 export default function Index() {
-  const [session, setSession] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
+  const { session, loading, loadUser, setSession } = useAuthStore()
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session || null)
-      setLoading(false)
-    })
+    loadUser()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session)

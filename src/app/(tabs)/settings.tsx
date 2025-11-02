@@ -67,7 +67,6 @@ export default function SettingsScreen() {
         <View className='flex-row justify-center items-center pt-5'>
           <Text className="text-2xl text-blue-950 pl-3 font-bold">Configurações</Text>
         </View>
-        <DrawerToggleButton tintColor='#172554' />
       </View>
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <AnimatedModal

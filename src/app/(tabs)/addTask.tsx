@@ -15,7 +15,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function addTask() {
 
-  const { addTask } = useTask();
   const { mutate: insertTask } = useInsertTask()
   const [title, setTitle] = useState('');
   const [pomodoros, setPomodoros] = useState(4);
@@ -28,13 +27,12 @@ export default function addTask() {
   const totalMinutes = pomodoros * 25;
   const presetOptions = [2, 4, 6, 8];
 
-  const handleCreateTask = () => {
+  const handleCreateTask = async () => {
     if (title.trim()) {
-      addTask(title.trim(), pomodoros);
       insertTask({ title, pomodoros })
       setTitle('');
       setPomodoros(4);
-      router.push('/');
+      router.push("/")
     }
   };
 
@@ -45,7 +43,6 @@ export default function addTask() {
         <View className='flex-row justify-center items-center'>
           <Text className="text-2xl text-blue-950 pl-3 font-bold">Criar Tarefas</Text>
         </View>
-        <DrawerToggleButton tintColor="#172554" />
       </View>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View className="px-6 pt-6">

@@ -1,14 +1,16 @@
 import { supabase } from "@/libs/supabase"
+import { useAuthStore } from "@/stores/AuthStore"
 import { InsertTask } from "@/types/Task"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 
-
 export const useTaskList = () => {
+  const { user } = useAuthStore()
   return useQuery({
     networkMode: "offlineFirst",
+    enabled: !!user,
     queryKey: ['tasks'],
+    refetchOnMount: true,
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
       const { data, error } = await supabase.from("tasks").select("*").eq("user_id", user?.id)
       if (error) throw new Error(error.message)
       return data
@@ -17,11 +19,11 @@ export const useTaskList = () => {
 }
 
 export const useInsertTask = () => {
+  const { user } = useAuthStore()
   const queryClient = useQueryClient()
 
   return useMutation({
     async mutationFn(data: InsertTask) {
-      const { data: { user } } = await supabase.auth.getUser();
       const { data: newTask, error } = await supabase
         .from("tasks")
         .insert({

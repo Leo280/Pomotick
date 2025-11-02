@@ -1,10 +1,8 @@
 import { useTaskList } from '@/api/tasks';
-import { CreateTaskModal } from '@/src/components/CreateTaskModal';
 import { Search } from "@/src/components/Search";
 import { TaskCard } from '@/src/components/TaskCard';
 import useTask from '@/stores/TaskStore';
 import { Octicons } from '@expo/vector-icons';
-import { DrawerToggleButton } from "@react-navigation/drawer";
 import { FlashList } from '@shopify/flash-list';
 import { router } from "expo-router";
 import { useState } from 'react';
@@ -19,7 +17,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Tasks() {
   const { setActiveTask, pauseActiveTask } = useTask()
-  const { data: tasks, error, isLoading } = useTaskList()
+  const { data: tasks, error, isLoading, refetch } = useTaskList()
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   if (isLoading) return <ActivityIndicator />
@@ -49,7 +47,6 @@ export default function Tasks() {
         <View className='flex-row justify-center '>
           <Text className="text-2xl text-blue-950 pl-3 font-bold"></Text>
         </View>
-        <DrawerToggleButton tintColor='#172554' />
       </View>
       <Search />
       <View className="flex-row justify-stretch items-center gap-8 mt-4 mb-4 ml-4">
