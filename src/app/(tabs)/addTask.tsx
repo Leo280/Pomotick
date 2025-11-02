@@ -29,7 +29,6 @@ export default function addTask() {
   const presetOptions = [2, 4, 6, 8];
 
   const handleCreateTask = () => {
-    console.log("Criando task com título:", title, "e pomodoros:", pomodoros);
     if (title.trim()) {
       addTask(title.trim(), pomodoros);
       insertTask({ title, pomodoros })

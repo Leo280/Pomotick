@@ -1,17 +1,18 @@
+import { useDeleteTask } from '@/api/tasks';
 import useTask from '@/stores/TaskStore';
-import { Task } from '@/types/Task';
+import { mapTaskDBToTask, TaskDB } from '@/types/Task';
 import { Clock, Trash2 } from 'lucide-react-native';
 import { Text, TouchableOpacity, View } from 'react-native';
-import FavoriteButton from './FavoriteButton';
 
 interface TaskCardProps {
-  task: Task;
+  taskdb: TaskDB;
   onStart: () => void;
   onPause: () => void;
 }
 
-export function TaskCard({ task, onStart, onPause }: TaskCardProps) {
-  const { deleteTask } = useTask()
+export function TaskCard({ taskdb, onStart, onPause }: TaskCardProps) {
+  const task = mapTaskDBToTask(taskdb);
+  const { mutate: deleteTask } = useDeleteTask()
   const progress = (task.completedPomodoros / task.totalPomodoros) * 100;
   const totalMinutes = task.totalPomodoros * 25;
 
@@ -21,7 +22,7 @@ export function TaskCard({ task, onStart, onPause }: TaskCardProps) {
         <Text className="text-lg font-bold text-gray-800 flex-1 mr-3 leading-6" numberOfLines={2}>
           {task.title}
         </Text>
-        <FavoriteButton id={task.id} isFavorite={task.isFavorite} canUnfavorite={false} />
+        {/* <FavoriteButton id={task.id} isFavorite={task.isFavorite} canUnfavorite={false} /> */}
       </View>
 
       <View className="flex-row items-center mb-3">

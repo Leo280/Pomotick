@@ -18,7 +18,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 
 export default function Tasks() {
-  const { addTask, setActiveTask, pauseActiveTask } = useTask()
+  const { setActiveTask, pauseActiveTask } = useTask()
   const { data: tasks, error, isLoading } = useTaskList()
   const [showCreateModal, setShowCreateModal] = useState(false);
 
@@ -88,18 +88,12 @@ export default function Tasks() {
           renderItem={({ item }) => {
             return <TaskCard
               key={item.id}
-              task={item}
+              taskdb={item}
               onStart={() => handleStartTask(item.id)}
               onPause={handlePauseTask}
             />
           }}
           data={tasks}
-        />
-
-        <CreateTaskModal
-          visible={showCreateModal}
-          onClose={() => setShowCreateModal(false)}
-          onSubmit={() => console.log("Tarefa criada")}
         />
       </SafeAreaView>
     </SafeAreaView>

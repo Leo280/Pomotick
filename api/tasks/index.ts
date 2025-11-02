@@ -2,12 +2,14 @@ import { supabase } from "@/libs/supabase"
 import { InsertTask } from "@/types/Task"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 
+
 export const useTaskList = () => {
   return useQuery({
     networkMode: "offlineFirst",
     queryKey: ['tasks'],
     queryFn: async () => {
-      const { data, error } = await supabase.from("tasks").select("*")
+      const { data: { user } } = await supabase.auth.getUser();
+      const { data, error } = await supabase.from("tasks").select("*").eq("user_id", user?.id)
       if (error) throw new Error(error.message)
       return data
     }
@@ -15,13 +17,11 @@ export const useTaskList = () => {
 }
 
 export const useInsertTask = () => {
-  console.log("🔥 useInsertTask hook montado");
   const queryClient = useQueryClient()
 
   return useMutation({
     async mutationFn(data: InsertTask) {
       const { data: { user } } = await supabase.auth.getUser();
-      console.log("Cheguei aqui", user)
       const { data: newTask, error } = await supabase
         .from("tasks")
         .insert({
@@ -29,7 +29,7 @@ export const useInsertTask = () => {
           total_pomodoros: data.pomodoros,
           completed_pomodoros: 0,
           is_active: false,
-          time_remaining: 25,
+          time_remaining: data.pomodoros * 25,
           user_id: user?.id
         })
         .select()
@@ -38,6 +38,23 @@ export const useInsertTask = () => {
         throw new Error(error.message)
       }
       return newTask
+    },
+    async onSuccess() {
+      await queryClient.invalidateQueries({ queryKey: ["tasks"] })
+    }
+  })
+}
+
+export const useDeleteTask = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    async mutationFn(id: string) {
+      const { error } = await supabase
+        .from("tasks")
+        .delete()
+        .eq("id", id)
+      if (error) throw new Error(error.message)
     },
     async onSuccess() {
       await queryClient.invalidateQueries({ queryKey: ["tasks"] })
