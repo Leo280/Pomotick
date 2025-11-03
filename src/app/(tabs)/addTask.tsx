@@ -1,3 +1,4 @@
+import { useInsertTask } from "@/api/tasks";
 import useTask from "@/stores/TaskStore";
 import { DrawerToggleButton } from "@react-navigation/drawer";
 import { router } from 'expo-router';
@@ -14,7 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function addTask() {
 
-  const { addTask } = useTask();
+  const { mutate: insertTask } = useInsertTask()
   const [title, setTitle] = useState('');
   const [pomodoros, setPomodoros] = useState(4);
 
@@ -26,22 +27,22 @@ export default function addTask() {
   const totalMinutes = pomodoros * 25;
   const presetOptions = [2, 4, 6, 8];
 
-  const handleCreateTask = () => {
+  const handleCreateTask = async () => {
     if (title.trim()) {
-      addTask(title.trim(), pomodoros);
+      insertTask({ title, pomodoros })
       setTitle('');
       setPomodoros(4);
-      router.push('/');
+      router.push("/")
     }
   };
 
   return (
 
     <SafeAreaView className="flex-1  pt-9 bg-white">
-        <View className='flex-row justify-center items-center w-100%'>
-          <Text className="text-2xl text-blue-950 pl-3 font-bold">Criar Tarefas</Text>
-        </View>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <View className='flex-row justify-center items-center w-100%'>
+        <Text className="text-2xl text-blue-950 pl-3 font-bold">Criar Tarefas</Text>
+      </View>
+      <ScrollView showsVerticalScrollIndicator={false} >
         <View className="px-6 pt-6">
           <View className="mb-8">
             <Text className="text-lg font-semibold text-gray-800 ">Nome da Tarefa</Text>
@@ -76,7 +77,7 @@ export default function addTask() {
               </TouchableOpacity>
               <TouchableOpacity className="flex-col items-center justify-center">
                 <Text className="text-3xl">😀</Text>
-                <Text  className="text-gray-500 text-sm">Disposto</Text>
+                <Text className="text-gray-500 text-sm">Disposto</Text>
               </TouchableOpacity>
               <TouchableOpacity className="flex-col items-center justify-center">
                 <Text className="text-3xl">🤩</Text>
@@ -180,8 +181,7 @@ export default function addTask() {
           </Text>
         </TouchableOpacity>
       </View>
-    </SafeAreaView>
-
+    </SafeAreaView >
 
   )
 
