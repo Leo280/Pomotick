@@ -1,6 +1,6 @@
 import { supabase } from "@/libs/supabase"
 import { useAuthStore } from "@/stores/AuthStore"
-import { InsertTask } from "@/types/Task"
+import { InsertTask, UpdateTask } from "@/types/Task"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 
 export const useTaskList = () => {
@@ -46,7 +46,8 @@ export const useInsertTask = () => {
           is_active: false,
           // TODO = trocar para o que o usuário escolher
           time_remaining: data.pomodoros * 25,
-          user_id: user?.id
+          user_id: user?.id,
+          pomodoro_time: 2,
         })
         .select()
       if (error) {
@@ -54,6 +55,26 @@ export const useInsertTask = () => {
         throw new Error(error.message)
       }
       return newTask
+    },
+    async onSuccess() {
+      await queryClient.invalidateQueries({ queryKey: ["tasks"] })
+    }
+  })
+}
+
+export const useUpdateTask = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    async mutationFn({ id, body }: { id: string, body: UpdateTask }) {
+      const { error } = await supabase
+        .from("tasks")
+        .update({
+          ...body,
+          updated_at: new Date().toISOString()
+        })
+        .eq("id", id)
+      if (error) throw new Error(error.message)
     },
     async onSuccess() {
       await queryClient.invalidateQueries({ queryKey: ["tasks"] })

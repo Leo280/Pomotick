@@ -1,4 +1,4 @@
-import { Tables } from './Helper';
+import { Tables, UpdateTables } from './Helper';
 
 export type TaskDB = Tables<"tasks">
 
@@ -12,12 +12,16 @@ export interface Task {
   createdAt: string;
   updatedAt: string;
   userId: string;
+  lastUpdateTimer: string;
+  pomodoroTime: number;
 }
 
 export type InsertTask = {
-  title: string
-  pomodoros: number
+  title: string;
+  pomodoros: number;
 }
+
+export type UpdateTask = UpdateTables<"tasks">
 
 export function mapTaskDBToTask(db: TaskDB): Task {
   return {
@@ -30,5 +34,7 @@ export function mapTaskDBToTask(db: TaskDB): Task {
     createdAt: db.created_at,
     updatedAt: db.updated_at,
     userId: db.user_id,
+    lastUpdateTimer: db.last_update_timer || "",
+    pomodoroTime: db.pomodoro_time
   };
 }

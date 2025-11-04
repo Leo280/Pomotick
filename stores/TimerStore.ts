@@ -63,7 +63,7 @@ export const useTimerStore = create<TimerStore>()(
 
       tick: (taskId) => {
         const timer = get().timers[taskId];
-        if (!timer || !timer.isRunning) return; // só decrementa se estiver rodando
+        if (!timer || !timer.isRunning) return;
 
         const now = Date.now();
         const deltaSeconds = Math.floor((now - timer.lastUpdated) / 1000);

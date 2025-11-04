@@ -20,6 +20,8 @@ export type Database = {
           created_at: string
           id: string
           is_active: boolean
+          last_update_timer: string | null
+          pomodoro_time: number
           time_remaining: number
           title: string
           total_pomodoros: number
@@ -31,6 +33,8 @@ export type Database = {
           created_at?: string
           id?: string
           is_active: boolean
+          last_update_timer?: string | null
+          pomodoro_time?: number
           time_remaining: number
           title: string
           total_pomodoros: number
@@ -42,6 +46,8 @@ export type Database = {
           created_at?: string
           id?: string
           is_active?: boolean
+          last_update_timer?: string | null
+          pomodoro_time?: number
           time_remaining?: number
           title?: string
           total_pomodoros?: number
