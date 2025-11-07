@@ -18,26 +18,29 @@ export default function StudyScreen() {
   const { data, isLoading, error } = useTask(id as string);
   const [taskName, setTaskName] = useState("");
   const [isEditing, setIsEditing] = useState(false);
-  const [completed, setCompleted] = useState(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const { timers, tick, addTimer, start, pause, reset } = useTimerStore();
   const { mutate: updateTask } = useUpdateTask();
   const queryClient = useQueryClient();
-  const [sessionType, setSessionType] = useState<SessionType>("pomodoro");
+
+  const sessionType = timers[id]?.sessionType || "pomodoro";
+
+  const completed = data?.completed_pomodoros || 0;
+  const totalPomodoros = data?.total_pomodoros || 4;
 
   useEffect(() => {
     if (data) {
       const task = mapTaskDBToTask(data);
       setTaskName(task.title);
-      setCompleted(task.completedPomodoros || 0);
 
       if (!timers[id]) {
         addTimer(id, {
           minutes: task.pomodoroTime || 25,
           seconds: 0,
           lastUpdated: Date.now(),
-          isRunning: false
+          isRunning: false,
+          sessionType: (task.sessionType as SessionType) || "pomodoro"
         });
       }
     }
@@ -66,16 +69,6 @@ export default function StudyScreen() {
     });
   };
 
-  const handleFinishPomodoro = () => {
-    const newCount = completed + 1;
-    setCompleted(newCount);
-    queryClient.setQueryData<Task>(["task", id], (old) => ({
-      ...old!,
-      completed_pomodoros: newCount
-    }));
-    updateTask({ id, body: { completed_pomodoros: newCount } });
-  };
-
   const getTimerMinutes = (task: TaskDB, type?: SessionType): number => {
     const session: SessionType = (type ?? (task.session_type || "pomodoro")) as SessionType;
     const map: Record<SessionType, number> = {
@@ -95,16 +88,23 @@ export default function StudyScreen() {
 
   const handleReset = () => {
     if (!data) return;
-    const totalPomodoros = data.total_pomodoros || 4;
-    if (completed >= totalPomodoros && sessionType === 'pomodoro') return;
-    const minutes = getTimerMinutes(data, data.session_type);
+
+    if (completed >= totalPomodoros && sessionType === "pomodoro") {
+      return;
+    }
+
+    const currentSessionType = timers[id]?.sessionType || "pomodoro";
+    const minutes = getTimerMinutes(data, currentSessionType);
     const now = Date.now();
+
     reset(id, {
       minutes: minutes,
       seconds: 0,
       lastUpdated: now,
-      isRunning: false
+      isRunning: false,
+      sessionType: currentSessionType
     });
+
     updateTask({
       id,
       body: {
@@ -126,24 +126,81 @@ export default function StudyScreen() {
       const totalRemaining = currentTimer.minutes * 60 + currentTimer.seconds;
 
       if (totalRemaining <= 0) {
-        if (sessionType === "pomodoro") {
+        const currentSessionType = timers[id]?.sessionType || "pomodoro";
+
+        if (currentSessionType === "pomodoro") {
           const newCompleted = completed + 1;
-          setCompleted(newCompleted);
-          queryClient.setQueryData<Task>(["task", id], (old) => ({
+
+          queryClient.setQueryData<TaskDB>(["task", id], (old) => ({
             ...old!,
             completed_pomodoros: newCompleted,
+            session_type: getNextSessionType(newCompleted, currentSessionType)
           }));
-          updateTask({ id, body: { completed_pomodoros: newCompleted } });
 
-          const nextType = getNextSessionType(newCompleted, sessionType);
-          setSessionType(nextType);
-          handleReset();
+          const nextType = getNextSessionType(newCompleted, currentSessionType);
+          const nextMinutes = getTimerMinutes(data, nextType);
+
+          reset(id, {
+            minutes: nextMinutes,
+            seconds: 0,
+            lastUpdated: Date.now(),
+            isRunning: false,
+            sessionType: nextType
+          });
+
+          updateTask({
+            id,
+            body: {
+              completed_pomodoros: newCompleted,
+              session_type: nextType,
+              last_update_timer: new Date().toISOString()
+            }
+          });
         } else {
-          if (completed >= (data.total_pomodoros || 4)) {
-            handlePause();
+          if (completed >= totalPomodoros) {
+            queryClient.setQueryData<TaskDB>(["task", id], (old) => ({
+              ...old!,
+              session_type: "pomodoro"
+            }));
+            reset(id, {
+              minutes: 0,
+              seconds: 0,
+              lastUpdated: Date.now(),
+              isRunning: false,
+              sessionType: "pomodoro"
+            });
+
+            updateTask({
+              id,
+              body: {
+                session_type: "pomodoro",
+                last_update_timer: new Date().toISOString(),
+                is_active: false
+              }
+            });
           } else {
-            setSessionType("pomodoro");
-            handleReset();
+            const pomodoroMinutes = getTimerMinutes(data, "pomodoro");
+
+            queryClient.setQueryData<TaskDB>(["task", id], (old) => ({
+              ...old!,
+              session_type: "pomodoro"
+            }));
+
+            reset(id, {
+              minutes: pomodoroMinutes,
+              seconds: 0,
+              lastUpdated: Date.now(),
+              isRunning: false,
+              sessionType: "pomodoro"
+            });
+
+            updateTask({
+              id,
+              body: {
+                session_type: "pomodoro",
+                last_update_timer: new Date().toISOString()
+              }
+            });
           }
         }
       }
@@ -152,11 +209,16 @@ export default function StudyScreen() {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [timers[id], completed, data, id, sessionType]);
+  }, [timers[id], completed, data, id]);
 
   const toggleTimer = () => {
     const timer = timers[id];
     if (!timer) return;
+
+    if (completed >= totalPomodoros && sessionType === "pomodoro") {
+      return;
+    }
+
     timer.isRunning ? handlePause() : handleStart();
   };
 
@@ -174,7 +236,7 @@ export default function StudyScreen() {
     if (!t.isRunning) return t;
 
     const now = Date.now();
-    const elapsed = Math.floor((now - t.lastUpdated) / 1000); // segundos
+    const elapsed = Math.floor((now - t.lastUpdated) / 1000);
     let totalSeconds = t.minutes * 60 + t.seconds - elapsed;
 
     if (totalSeconds <= 0) totalSeconds = 0;
@@ -186,7 +248,6 @@ export default function StudyScreen() {
   };
 
   const timer = getCurrentTimer()
-  const totalPomodoros = data.total_pomodoros || 4;
   const remainingPomodoros = Math.max(0, totalPomodoros - completed);
   const radius = 120;
   const strokeWidth = 12;
@@ -196,6 +257,8 @@ export default function StudyScreen() {
   const remainingSeconds = timer.minutes * 60 + timer.seconds;
   const progress = remainingSeconds / totalSeconds;
   const strokeDashoffset = circumference * (1 - progress);
+
+  const sessionEnded = completed >= totalPomodoros && sessionType === "pomodoro";
 
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
@@ -224,7 +287,7 @@ export default function StudyScreen() {
               <Text className="text-5xl font-light text-gray-300 tracking-wider">{formatTime(timer)}</Text>
               <Text className="text-sm text-blue-400 mt-1">
                 {
-                  data.completed_pomodoros === data.total_pomodoros ? "Sua tarefa acabou" :
+                  sessionEnded ? "Sua sessão acabou" :
                     sessionType === "pomodoro"
                       ? `Restam ${remainingPomodoros} Pomodoros`
                       : sessionType === "short_break"
@@ -242,13 +305,25 @@ export default function StudyScreen() {
         </View>
 
         <View className="flex-row gap-3 mb-6">
-          <TouchableOpacity className="flex-1 flex-row items-center justify-center bg-white py-4 px-5 rounded-2xl gap-2 shadow-sm" onPress={toggleTimer} activeOpacity={0.7}>
-            {timer.isRunning ? <Pause size={20} color="#6B7280" /> : <Play size={20} color="#6B7280" />}
-            <Text className="text-base font-medium text-gray-600">{timer.isRunning ? "Pausar" : "Iniciar"}</Text>
+          <TouchableOpacity
+            className={`flex-1 flex-row items-center justify-center py-4 px-5 rounded-2xl gap-2 shadow-sm ${sessionEnded ? "bg-gray-200" : "bg-white"}`}
+            onPress={toggleTimer}
+            activeOpacity={sessionEnded ? 1 : 0.7}
+            disabled={sessionEnded}
+          >
+            {timer.isRunning ? <Pause size={20} color={sessionEnded ? "#9CA3AF" : "#6B7280"} /> : <Play size={20} color={sessionEnded ? "#9CA3AF" : "#6B7280"} />}
+            <Text className={`text-base font-medium ${sessionEnded ? "text-gray-400" : "text-gray-600"}`}>
+              {timer.isRunning ? "Pausar" : "Iniciar"}
+            </Text>
           </TouchableOpacity>
-          <TouchableOpacity className="flex-1 flex-row items-center justify-center bg-white py-4 px-5 rounded-2xl gap-2 shadow-sm" onPress={handleReset} activeOpacity={0.7}>
-            <RotateCcw size={20} color="#6B7280" />
-            <Text className="text-base font-medium text-gray-600">Reiniciar</Text>
+          <TouchableOpacity
+            className={`flex-1 flex-row items-center justify-center py-4 px-5 rounded-2xl gap-2 shadow-sm ${sessionEnded ? "bg-gray-200" : "bg-white"}`}
+            onPress={handleReset}
+            activeOpacity={sessionEnded ? 1 : 0.7}
+            disabled={sessionEnded}
+          >
+            <RotateCcw size={20} color={sessionEnded ? "#9CA3AF" : "#6B7280"} />
+            <Text className={`text-base font-medium ${sessionEnded ? "text-gray-400" : "text-gray-600"}`}>Reiniciar</Text>
           </TouchableOpacity>
         </View>
 
