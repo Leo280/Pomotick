@@ -1,14 +1,13 @@
-import { CreateTaskModal } from '@/src/components/CreateTaskModal';
+import { useTaskList } from '@/api/tasks';
 import { Search } from "@/src/components/Search";
 import { TaskCard } from '@/src/components/TaskCard';
 import useTask from '@/stores/TaskStore';
 import { Octicons } from '@expo/vector-icons';
-import { DrawerToggleButton } from "@react-navigation/drawer";
 import { FlashList } from '@shopify/flash-list';
 import { router } from "expo-router";
 import { useState } from 'react';
 import {
-  Alert,
+  ActivityIndicator,
   TouchableOpacity,
   View
 } from 'react-native';
@@ -17,8 +16,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 
 export default function Tasks() {
-  const { tasks, addTask, setActiveTask, pauseActiveTask } = useTask()
+  const { setActiveTask, pauseActiveTask } = useTask()
+  const { data: tasks, error, isLoading, refetch } = useTaskList()
   const [showCreateModal, setShowCreateModal] = useState(false);
+
+  if (isLoading) return <ActivityIndicator />
+
+  if (error) console.error(error.message)
 
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
@@ -26,17 +30,7 @@ export default function Tasks() {
     return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
-  const activeTask = tasks.find(task => task.isActive);
-
-  const handleCreateTask = (title: string, pomodoros: number) => {
-    const trimmedText = title.trim()
-    const isDuplicate = tasks.some(task => task.title.trim().toLowerCase() === trimmedText.toLowerCase())
-    if (isDuplicate) {
-      Alert.alert('Essa tarefa já existe', 'Uma tarefa com este título já existe, tente adicionar outra!')
-    }
-    addTask(title, pomodoros);
-    setShowCreateModal(false);
-  };
+  const activeTask = tasks?.find(task => task.is_active);
 
   const handleStartTask = (taskId: string) => {
     setActiveTask(taskId);
@@ -49,6 +43,11 @@ export default function Tasks() {
   return (
 
     <SafeAreaView className="flex-1 p-6 bg-white">
+      <View className="flex-row justify-between items-center">
+        <View className='flex-row justify-center '>
+          <Text className="text-2xl text-blue-950 pl-3 font-bold"></Text>
+        </View>
+      </View>
       <Search />
       <View className="flex-row justify-stretch items-center gap-8 mt-4 mb-4 ml-4">
         <TouchableOpacity className="d-flex flex-row items-center p-2 border border-zinc-300 rounded-lg w-22 h-10" onPress={() => { router.push("/favorites") }}>
@@ -86,18 +85,12 @@ export default function Tasks() {
           renderItem={({ item }) => {
             return <TaskCard
               key={item.id}
-              task={item}
+              taskdb={item}
               onStart={() => handleStartTask(item.id)}
               onPause={handlePauseTask}
             />
           }}
           data={tasks}
-        />
-
-        <CreateTaskModal
-          visible={showCreateModal}
-          onClose={() => setShowCreateModal(false)}
-          onSubmit={handleCreateTask}
         />
       </SafeAreaView>
     </SafeAreaView>
