@@ -17,7 +17,7 @@ export default function Masthead({ image, children }: MastheadProps) {
       <View className="items-center justify-center">
         {children}
       </View>
-      <Text className="color-white p-20 font-bold text-lg" />
+      <Text className="color-white p-16  font-bold text-lg" />
     </SafeAreaView >
   )
 }

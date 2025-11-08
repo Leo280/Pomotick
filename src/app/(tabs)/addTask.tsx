@@ -1,14 +1,13 @@
 import { useInsertTask } from "@/api/tasks";
-import useTask from "@/stores/TaskStore";
-import { DrawerToggleButton } from "@react-navigation/drawer";
 import { router } from 'expo-router';
 import { Clock, Minus, Pause, Plus } from 'lucide-react-native';
 import { useState } from 'react';
 import {
+  Image,
   ScrollView,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 import { Text } from "react-native-gesture-handler";
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -36,6 +35,65 @@ export default function addTask() {
     }
   };
 
+  
+   const [selectedButton, setSelectedButton] = useState<number | null>(null)
+
+   const buttons = [
+    {
+      id: 1,
+      label: "Esgotado",
+       color: "red", 
+      image: require("../../../assets/icons/red_tomato.png"), 
+      description: "Ciclo: 15 min de foco, 5 min de pausa curta, 0 min de pausa longa.",
+    },
+    {
+      id: 2,
+      label: "Cansado",
+      color: "#F97316", 
+      image: require("../../../assets/icons/orange_tomato.png"),
+      description: "Ciclo: 20 min de foco, 5 min de pausa curta, 15 min de pausa longa.",
+    },
+    {
+      id: 3,
+      label: "Normal",
+       color: "#4F5950", 
+      image: require("../../../assets/icons/gray_tomato.png"),
+      description: "Ciclo: 25 min de foco, 5 min de pausa curta, 15 min de pausa longa.",
+    },
+    {
+      id: 4,
+      label: "Disposto",
+       color: "#45D145", 
+      image: require("../../../assets/icons/green_tomato.png"),
+      description: "Ciclo: 30 min de foco, 5 min de pausa curta, 15 min de pausa longa.",
+    },
+    {
+      id: 5,
+      label: "Pra cima",
+      color: "#2B613E", 
+      image: require("../../../assets/icons/darkgreen_tomato.png"),
+      description: "Ciclo: 50 min de foco, 10 min de pausa curta, 15 min de pausa longa.",
+    },
+  ];
+
+
+  const selected = buttons.find((b) => b.id === selectedButton);
+
+  const [focusTime, setFocusTime] = useState("25");
+  const [shortBreak, setShortBreak] = useState("5");
+  const [longBreak, setLongBreak] = useState("15");
+  const [cyclesBeforeLongBreak, setCyclesBeforeLongBreak] = useState("4");
+
+  const handleSave = () => {
+    console.log({
+      focusTime,
+      shortBreak,
+      longBreak,
+      cyclesBeforeLongBreak,
+    });
+  }
+
+
   return (
 
     <SafeAreaView className="flex-1  pt-9 bg-white">
@@ -62,28 +120,40 @@ export default function addTask() {
           <View className="mb-6">
             <Text className="text-xl font-semibold text-gray-800">Como estou me sentindo?</Text>
             <Text className="text-gray-500">Escolha entre as opções abaixo, qual seu estado mental no momento.</Text>
-            <View className="bg-white rounded-xl p-4 mt-5 shadow-2xl flex-row justify-between items-center gap-3">
-              <TouchableOpacity className="flex-col items-center justify-center">
-                <Text className="text-3xl">😞</Text>
-                <Text className="text-gray-500 text-sm">Esgotado</Text>
-              </TouchableOpacity>
-              <TouchableOpacity className="flex-col items-center justify-center">
-                <Text className="text-3xl">🥱</Text>
-                <Text className="text-gray-500 text-sm">Cansado</Text>
-              </TouchableOpacity>
-              <TouchableOpacity className="flex-col items-center justify-center">
-                <Text className="text-3xl">😐</Text>
-                <Text className="text-gray-500 text-sm">Normal</Text>
-              </TouchableOpacity>
-              <TouchableOpacity className="flex-col items-center justify-center">
-                <Text className="text-3xl">😀</Text>
-                <Text className="text-gray-500 text-sm">Disposto</Text>
-              </TouchableOpacity>
-              <TouchableOpacity className="flex-col items-center justify-center">
-                <Text className="text-3xl">🤩</Text>
-                <Text className="text-gray-500 text-sm">Pra cima</Text>
-              </TouchableOpacity>
-            </View>
+  
+  <View className="flex-1 items-center justify-center p-3 bg-white mt-8">
+      <View className="flex-row  justify-between items-center gap-3 ">
+        {buttons.map((btn) => (
+          <TouchableOpacity
+            key={btn.id}
+            className={`w-20 h-20  rounded-2xl justify-center items-center shadow-2xl   ${
+              selectedButton === btn.id ? "bg-gray-200" : "bg-white"
+            }`}
+            onPress={() => setSelectedButton(selectedButton === btn.id ? null : btn.id)}
+          >
+        
+            <Text className=" font-medium text-xs " style={{ color: btn.color }}>{btn.label}</Text>
+
+           
+            <Image
+              source={btn.image}
+              className="w-10 h-10"
+              resizeMode="cover"
+            />
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {selected && (
+        <View className="mt-8 w-80 bg-white p-4 rounded-2xl shadow items-center">
+        
+          <Text className="text-xl font-bold " style={{ color: selected.color }}>
+            {selected.label}
+          </Text>
+          <Text className="text-gray-700 text-justify">{selected.description}</Text>
+        </View>
+      )}
+    </View>
           </View>
 
           <View className="mb-8">
@@ -141,6 +211,39 @@ export default function addTask() {
               </View>
             </View>
 
+        <View className=" mt-8 mb-4">
+        <Text className="text-gray-700 mb-1">Tempo de foco (minutos)</Text>
+        <TextInput
+          className="bg-white rounded-xl p-3 text-center text-lg border border-gray-300"
+          keyboardType="numeric"
+          value={focusTime}
+          onChangeText={setFocusTime}
+        />
+      </View>
+
+      {/* Campo: Pausa curta */}
+      <View className=" mb-4">
+        <Text className="text-gray-700 mb-1">Pausa curta (minutos)</Text>
+        <TextInput
+          className="bg-white rounded-xl p-3 text-center text-lg border border-gray-300"
+          keyboardType="numeric"
+          value={shortBreak}
+          onChangeText={setShortBreak}
+        />
+      </View>
+
+      {/* Campo: Pausa longa */}
+      <View className=" mb-4">
+        <Text className="text-gray-700 mb-1">Pausa longa (minutos)</Text>
+        <TextInput
+          className="bg-white rounded-xl p-3 text-center text-lg border border-gray-300"
+          keyboardType="numeric"
+          value={longBreak}
+          onChangeText={setLongBreak}
+        />
+      </View>
+      
+
             <View className="bg-white rounded-xl p-4 mt-5 shadow-2xl">
               <View className="flex-row items-center mb-2">
                 <Clock size={16} color="#6B7280" />
@@ -167,7 +270,7 @@ export default function addTask() {
         </View>
       </ScrollView>
 
-      <View className=" flex-row items-center justify-center bg-white mt-4 mb-8">
+      <View className=" flex-row items-center justify-center bg-white mt-4 mb-20">
         <TouchableOpacity
           className={`rounded-full py-4 flex-row items-center justify-center gap-2 w-56 mb-5 ${!title.trim() ? 'bg-gray-300' : 'bg-blue-500'
             }`}

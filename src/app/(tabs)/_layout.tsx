@@ -1,10 +1,12 @@
 import FloatingTabBar from "@/src/components/FloatingTabBar";
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
-import { ColorProperties } from "react-native-reanimated/lib/typescript/Colors";
+
+
 
 export default function TabLayout() {
   return (
+    
     <Tabs
       screenOptions={{
         headerShown: false,
@@ -43,6 +45,7 @@ export default function TabLayout() {
           <Ionicons name={focused ? 'thumbs-down' : 'thumbs-down-outline'} size={size} color={color} />
         )
       }} />
+     
     </Tabs>
   )
 }
