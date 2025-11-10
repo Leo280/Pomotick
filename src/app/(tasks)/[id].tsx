@@ -1,23 +1,42 @@
 import { useTask, useUpdateTask } from "@/api/tasks";
 import { useTimerStore } from "@/stores/TimerStore";
-import { mapTaskDBToTask, Task, TaskDB } from "@/types/Task";
+import { mapTaskDBToTask, TaskDB } from "@/types/Task";
 import { useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { ChevronLeft, Edit2, Pause, Play, RotateCcw } from "lucide-react-native";
-import { useEffect, useRef, useState } from "react";
-import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { LogBox, Platform, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Circle } from "react-native-svg";
+import * as Haptics from "expo-haptics";
+import * as Notifications from "expo-notifications";
 
-
+LogBox.ignoreLogs([
+  'expo-notifications: Android Push notifications (remote notifications) functionality provided by expo-notifications was removed from Expo Go',
+]);
 type SessionType = "pomodoro" | "short_break" | "long_break";
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+    shouldShowBanner: true,
+    shouldShowList: true
+  }),
+});
 
 export default function StudyScreen() {
   const { id: idString } = useLocalSearchParams();
   const id = Array.isArray(idString) ? idString[0] : idString;
+
   const { data, isLoading, error } = useTask(id as string);
   const [taskName, setTaskName] = useState("");
   const [isEditing, setIsEditing] = useState(false);
+
+  const [scheduledNotificationId, setScheduledNotificationId] = useState<string | null>(null);
+  const [endTimestamp, setEndTimestamp] = useState<number | null>(null);
+
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const { timers, tick, addTimer, start, pause, reset } = useTimerStore();
@@ -25,49 +44,58 @@ export default function StudyScreen() {
   const queryClient = useQueryClient();
 
   const sessionType = timers[id]?.sessionType || "pomodoro";
-
   const completed = data?.completed_pomodoros || 0;
   const totalPomodoros = data?.total_pomodoros || 4;
+
+  useEffect(() => {
+    (async () => {
+      try {
+        if (Platform.OS === "ios") {
+          const { status } = await Notifications.requestPermissionsAsync();
+          if (status !== "granted") {
+            console.warn("Permissão de notificações não concedida (iOS).");
+          }
+        }
+        if (Platform.OS === "android") {
+          await Notifications.setNotificationChannelAsync("default", {
+            name: "Default",
+            importance: Notifications.AndroidImportance.MAX,
+            vibrationPattern: [0, 300, 200, 300],
+            lightColor: "#FF231F7C",
+          });
+        }
+      } catch (e) {
+        console.warn("Falha ao configurar notificações:", e);
+      }
+    })();
+
+    const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
+      const data = response.notification.request.content.data as any;
+      if (data?.navigateHome) {
+        router.push("/");
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
 
   useEffect(() => {
     if (data) {
       const task = mapTaskDBToTask(data);
       setTaskName(task.title);
-
       if (!timers[id]) {
         addTimer(id, {
           minutes: task.pomodoroTime || 25,
           seconds: 0,
           lastUpdated: Date.now(),
           isRunning: false,
-          sessionType: (task.sessionType as SessionType) || "pomodoro"
+          sessionType: (task.sessionType as SessionType) || "pomodoro",
         });
       }
     }
   }, [data, id]);
-
-  const handlePause = () => {
-    pause(id)
-    updateTask({
-      id,
-      body: {
-        last_update_timer: new Date().toISOString(),
-        is_active: false
-      }
-    });
-  };
-
-  const handleStart = () => {
-    start(id)
-    tick(id)
-    updateTask({
-      id,
-      body: {
-        last_update_timer: new Date().toISOString(),
-        is_active: true
-      }
-    });
-  };
 
   const getTimerMinutes = (task: TaskDB, type?: SessionType): number => {
     const session: SessionType = (type ?? (task.session_type || "pomodoro")) as SessionType;
@@ -84,68 +112,151 @@ export default function StudyScreen() {
       return completedPomodoros % 4 === 0 ? "long_break" : "short_break";
     }
     return "pomodoro";
-  }
+  };
+
+  const scheduleEndNotification = useCallback(
+    async (currentType: SessionType, durationMinutes: number, nextType: SessionType) => {
+      if (scheduledNotificationId) {
+        try {
+          await Notifications.cancelScheduledNotificationAsync(scheduledNotificationId);
+        } catch { }
+      }
+
+      const titleMap: Record<SessionType, string> = {
+        pomodoro: "Pomodoro concluído!",
+        short_break: "Pausa curta terminou",
+        long_break: "Pausa longa terminou",
+      };
+      const bodyMap: Record<SessionType, string> = {
+        pomodoro:
+          nextType === "short_break"
+            ? "Hora de uma pausa curta."
+            : nextType === "long_break"
+              ? "Hora de uma pausa longa."
+              : "Fim!",
+        short_break: "Vamos voltar ao foco?",
+        long_break: "Volte ao foco renovado!",
+      };
+
+      try {
+        const seconds = Math.max(1, Math.round(durationMinutes * 60));
+        const idNotif = await Notifications.scheduleNotificationAsync({
+          content: {
+            title: titleMap[currentType],
+            body: bodyMap[currentType],
+            data: { endedType: currentType, nextType, navigateHome: false },
+            sound: true,
+          },
+          trigger: { type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL, seconds, repeats: false },
+        });
+        setScheduledNotificationId(idNotif);
+        setEndTimestamp(Date.now() + seconds * 1000);
+      } catch (e) {
+        console.warn("Falha ao agendar notificação de fim:", e);
+      }
+    },
+    [scheduledNotificationId]
+  );
+
+  const handleStart = () => {
+    if (!data) return;
+    start(id);
+    tick(id);
+
+    const currentType = timers[id]?.sessionType || "pomodoro";
+    const minutes = getTimerMinutes(data, currentType);
+    const nextType = currentType === "pomodoro"
+      ? getNextSessionType(completed + 1, currentType)
+      : "pomodoro";
+
+    scheduleEndNotification(currentType, minutes, nextType);
+
+    updateTask({
+      id,
+      body: {
+        last_update_timer: new Date().toISOString(),
+        is_active: true,
+      },
+    });
+  };
+
+  const handlePause = () => {
+    pause(id);
+    if (scheduledNotificationId) {
+      Notifications.cancelScheduledNotificationAsync(scheduledNotificationId).catch(() => { });
+      setScheduledNotificationId(null);
+      setEndTimestamp(null);
+    }
+    updateTask({
+      id,
+      body: {
+        last_update_timer: new Date().toISOString(),
+        is_active: false,
+      },
+    });
+  };
 
   const handleReset = () => {
     if (!data) return;
-
-    if (completed >= totalPomodoros && sessionType === "pomodoro") {
-      return;
-    }
+    if (completed >= totalPomodoros && sessionType === "pomodoro") return;
 
     const currentSessionType = timers[id]?.sessionType || "pomodoro";
     const minutes = getTimerMinutes(data, currentSessionType);
     const now = Date.now();
 
     reset(id, {
-      minutes: minutes,
+      minutes,
       seconds: 0,
       lastUpdated: now,
       isRunning: false,
-      sessionType: currentSessionType
+      sessionType: currentSessionType,
     });
+
+    if (scheduledNotificationId) {
+      Notifications.cancelScheduledNotificationAsync(scheduledNotificationId).catch(() => { });
+      setScheduledNotificationId(null);
+      setEndTimestamp(null);
+    }
 
     updateTask({
       id,
       body: {
         last_update_timer: new Date(now).toISOString(),
-        is_active: false
+        is_active: false,
       },
     });
   };
 
   useEffect(() => {
     if (!timers[id] || !data) return;
-
     intervalRef.current = setInterval(() => {
-      const currentTimer = getCurrentTimer()
+      const currentTimer = getCurrentTimer();
       if (!currentTimer || !currentTimer.isRunning) return;
-
       tick(id);
 
       const totalRemaining = currentTimer.minutes * 60 + currentTimer.seconds;
 
       if (totalRemaining <= 0) {
-        const currentSessionType = timers[id]?.sessionType || "pomodoro";
+        handleEndTimerVibration();
 
-        if (currentSessionType === "pomodoro") {
+        const currentType = timers[id]?.sessionType || "pomodoro";
+        if (currentType === "pomodoro") {
           const newCompleted = completed + 1;
+          const nextType = getNextSessionType(newCompleted, currentType);
+          const nextMinutes = getTimerMinutes(data, nextType);
 
           queryClient.setQueryData<TaskDB>(["task", id], (old) => ({
             ...old!,
             completed_pomodoros: newCompleted,
-            session_type: getNextSessionType(newCompleted, currentSessionType)
+            session_type: nextType,
           }));
-
-          const nextType = getNextSessionType(newCompleted, currentSessionType);
-          const nextMinutes = getTimerMinutes(data, nextType);
 
           reset(id, {
             minutes: nextMinutes,
             seconds: 0,
             lastUpdated: Date.now(),
             isRunning: false,
-            sessionType: nextType
+            sessionType: nextType,
           });
 
           updateTask({
@@ -153,56 +264,57 @@ export default function StudyScreen() {
             body: {
               completed_pomodoros: newCompleted,
               session_type: nextType,
-              last_update_timer: new Date().toISOString()
-            }
+              last_update_timer: new Date().toISOString(),
+            },
           });
+
+          setScheduledNotificationId(null);
+          setEndTimestamp(null);
         } else {
           if (completed >= totalPomodoros) {
             queryClient.setQueryData<TaskDB>(["task", id], (old) => ({
               ...old!,
-              session_type: "pomodoro"
+              session_type: "pomodoro",
             }));
             reset(id, {
               minutes: 0,
               seconds: 0,
               lastUpdated: Date.now(),
               isRunning: false,
-              sessionType: "pomodoro"
+              sessionType: "pomodoro",
             });
-
             updateTask({
               id,
               body: {
                 session_type: "pomodoro",
                 last_update_timer: new Date().toISOString(),
                 is_active: false,
-                is_completed: true
-              }
+                is_completed: true,
+              },
             });
           } else {
             const pomodoroMinutes = getTimerMinutes(data, "pomodoro");
-
             queryClient.setQueryData<TaskDB>(["task", id], (old) => ({
               ...old!,
-              session_type: "pomodoro"
+              session_type: "pomodoro",
             }));
-
             reset(id, {
               minutes: pomodoroMinutes,
               seconds: 0,
               lastUpdated: Date.now(),
               isRunning: false,
-              sessionType: "pomodoro"
+              sessionType: "pomodoro",
             });
-
             updateTask({
               id,
               body: {
                 session_type: "pomodoro",
-                last_update_timer: new Date().toISOString()
-              }
+                last_update_timer: new Date().toISOString(),
+              },
             });
           }
+          setScheduledNotificationId(null);
+          setEndTimestamp(null);
         }
       }
     }, 1000);
@@ -212,51 +324,70 @@ export default function StudyScreen() {
     };
   }, [timers[id], completed, data, id]);
 
+  const handleEndTimerVibration = () => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+    Haptics.selectionAsync();
+  };
+
   const toggleTimer = () => {
     const timer = timers[id];
     if (!timer) return;
-
-    if (completed >= totalPomodoros && sessionType === "pomodoro") {
-      return;
-    }
-
+    if (completed >= totalPomodoros && sessionType === "pomodoro") return;
     timer.isRunning ? handlePause() : handleStart();
   };
 
   const formatTime = (timer: { minutes: number; seconds: number }) =>
     `${timer.minutes.toString().padStart(2, "0")}:${timer.seconds.toString().padStart(2, "0")}`;
 
-  if (isLoading) return <SafeAreaView className="flex-1 justify-center items-center"><Text>Carregando...</Text></SafeAreaView>;
-  if (error) return <SafeAreaView className="flex-1 justify-center items-center"><Text>Erro ao carregar task: {error.message}</Text></SafeAreaView>;
-  if (!data) return <SafeAreaView className="flex-1 justify-center items-center"><Text>Tarefa não encontrada</Text></SafeAreaView>;
+  if (isLoading)
+    return (
+      <SafeAreaView className="flex-1 justify-center items-center">
+        <Text>Carregando...</Text>
+      </SafeAreaView>
+    );
+  if (error)
+    return (
+      <SafeAreaView className="flex-1 justify-center items-center">
+        <Text>Erro ao carregar task: {error.message}</Text>
+      </SafeAreaView>
+    );
+  if (!data)
+    return (
+      <SafeAreaView className="flex-1 justify-center items-center">
+        <Text>Tarefa não encontrada</Text>
+      </SafeAreaView>
+    );
 
   const getCurrentTimer = () => {
     const t = timers[id];
     if (!t) return { minutes: 0, seconds: 0, isRunning: false };
-
     if (!t.isRunning) return t;
 
     const now = Date.now();
-    const elapsed = Math.floor((now - t.lastUpdated) / 1000);
-    let totalSeconds = t.minutes * 60 + t.seconds - elapsed;
-
-    if (totalSeconds <= 0) totalSeconds = 0;
+    let totalSeconds: number;
+    if (endTimestamp) {
+      totalSeconds = Math.max(0, Math.floor((endTimestamp - now) / 1000));
+    } else {
+      const elapsed = Math.floor((now - t.lastUpdated) / 1000);
+      totalSeconds = t.minutes * 60 + t.seconds - elapsed;
+      if (totalSeconds < 0) totalSeconds = 0;
+    }
 
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
-
     return { ...t, minutes, seconds };
   };
 
-  const timer = getCurrentTimer()
+  const timer = getCurrentTimer();
   const remainingPomodoros = Math.max(0, totalPomodoros - completed);
   const radius = 120;
   const strokeWidth = 12;
   const circumference = 2 * Math.PI * radius;
 
-  const totalSeconds = (getTimerMinutes(data, sessionType) || 25) * 60;
+  const totalSecondsForSession = (getTimerMinutes(data, sessionType) || 25) * 60;
   const remainingSeconds = timer.minutes * 60 + timer.seconds;
-  const progress = remainingSeconds / totalSeconds;
+  const progress = remainingSeconds / totalSecondsForSession;
   const strokeDashoffset = circumference * (1 - progress);
 
   const sessionEnded = completed >= totalPomodoros && sessionType === "pomodoro";
@@ -264,14 +395,23 @@ export default function StudyScreen() {
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
       <View className="px-5 py-3">
-        <TouchableOpacity className="w-10 h-10 justify-center" onPress={() => router.push("/")} activeOpacity={0.7}>
+        <TouchableOpacity
+          className="w-10 h-10 justify-center"
+          onPress={() => router.push("/")}
+          activeOpacity={0.7}
+        >
           <ChevronLeft size={28} color="#1F2937" />
         </TouchableOpacity>
       </View>
       <View className="flex-1 px-5">
         {isEditing ? (
-          <TextInput className="text-xl font-semibold text-gray-800 mb-6 p-3 bg-white rounded-lg border-2 border-blue-500"
-            value={taskName} onChangeText={setTaskName} onBlur={() => setIsEditing(false)} autoFocus selectTextOnFocus
+          <TextInput
+            className="text-xl font-semibold text-gray-800 mb-6 p-3 bg-white rounded-lg border-2 border-blue-500"
+            value={taskName}
+            onChangeText={setTaskName}
+            onBlur={() => setIsEditing(false)}
+            autoFocus
+            selectTextOnFocus
           />
         ) : (
           <Text className="text-xl font-semibold text-gray-800 mb-6">{taskName}</Text>
@@ -280,20 +420,37 @@ export default function StudyScreen() {
         <View className="bg-white rounded-3xl p-8 items-center shadow-lg mb-5">
           <View className="relative items-center justify-center">
             <Svg width={radius * 2 + strokeWidth * 2} height={radius * 2 + strokeWidth * 2}>
-              <Circle cx={radius + strokeWidth} cy={radius + strokeWidth} r={radius} stroke="#E5E7EB" strokeWidth={strokeWidth} fill="none" />
-              <Circle cx={radius + strokeWidth} cy={radius + strokeWidth} r={radius} stroke="#60A5FA" strokeWidth={strokeWidth} fill="none"
-                strokeDasharray={circumference} strokeDashoffset={strokeDashoffset} strokeLinecap="round" rotation="-90" origin={`${radius + strokeWidth}, ${radius + strokeWidth}`} />
+              <Circle
+                cx={radius + strokeWidth}
+                cy={radius + strokeWidth}
+                r={radius}
+                stroke="#E5E7EB"
+                fill="none"
+              />
+              <Circle
+                cx={radius + strokeWidth}
+                cy={radius + strokeWidth}
+                r={radius}
+                stroke="#60A5FA"
+                strokeWidth={strokeWidth}
+                fill="none"
+                strokeDasharray={circumference}
+                strokeDashoffset={strokeDashoffset}
+                strokeLinecap="round"
+                rotation="-90"
+                origin={`${radius + strokeWidth}, ${radius + strokeWidth}`}
+              />
             </Svg>
             <View className="absolute items-center">
               <Text className="text-5xl font-light text-gray-300 tracking-wider">{formatTime(timer)}</Text>
               <Text className="text-sm text-blue-400 mt-1">
-                {
-                  sessionEnded ? "Sua sessão acabou" :
-                    sessionType === "pomodoro"
-                      ? `Restam ${remainingPomodoros} Pomodoros`
-                      : sessionType === "short_break"
-                        ? "Pausa curta"
-                        : "Pausa longa"}
+                {sessionEnded
+                  ? "Sua sessão acabou"
+                  : sessionType === "pomodoro"
+                    ? `Restam ${remainingPomodoros} Pomodoros`
+                    : sessionType === "short_break"
+                      ? "Pausa curta"
+                      : "Pausa longa"}
               </Text>
             </View>
           </View>
@@ -301,34 +458,56 @@ export default function StudyScreen() {
 
         <View className="flex-row justify-center gap-3 mb-6">
           {[...Array(totalPomodoros)].map((_, index) => (
-            <View key={index} className={`w-8 h-8 rounded-full ${index < completed ? "bg-blue-400" : "bg-gray-300"}`} />
+            <View
+              key={index}
+              className={`w-8 h-8 rounded-full ${index < completed ? "bg-blue-400" : "bg-gray-300"
+                }`}
+            />
           ))}
         </View>
 
         <View className="flex-row gap-3 mb-6">
           <TouchableOpacity
-            className={`flex-1 flex-row items-center justify-center py-4 px-5 rounded-2xl gap-2 shadow-sm ${sessionEnded ? "bg-gray-200" : "bg-white"}`}
+            className={`flex-1 flex-row items-center justify-center py-4 px-5 rounded-2xl gap-2 shadow-sm ${sessionEnded ? "bg-gray-200" : "bg-white"
+              }`}
             onPress={toggleTimer}
             activeOpacity={sessionEnded ? 1 : 0.7}
             disabled={sessionEnded}
           >
-            {timer.isRunning ? <Pause size={20} color={sessionEnded ? "#9CA3AF" : "#6B7280"} /> : <Play size={20} color={sessionEnded ? "#9CA3AF" : "#6B7280"} />}
-            <Text className={`text-base font-medium ${sessionEnded ? "text-gray-400" : "text-gray-600"}`}>
+            {timer.isRunning ? (
+              <Pause size={20} color={sessionEnded ? "#9CA3AF" : "#6B7280"} />
+            ) : (
+              <Play size={20} color={sessionEnded ? "#9CA3AF" : "#6B7280"} />
+            )}
+            <Text
+              className={`text-base font-medium ${sessionEnded ? "text-gray-400" : "text-gray-600"
+                }`}
+            >
               {timer.isRunning ? "Pausar" : "Iniciar"}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            className={`flex-1 flex-row items-center justify-center py-4 px-5 rounded-2xl gap-2 shadow-sm ${sessionEnded ? "bg-gray-200" : "bg-white"}`}
+            className={`flex-1 flex-row items-center justify-center py-4 px-5 rounded-2xl gap-2 shadow-sm ${sessionEnded ? "bg-gray-200" : "bg-white"
+              }`}
             onPress={handleReset}
             activeOpacity={sessionEnded ? 1 : 0.7}
             disabled={sessionEnded}
           >
             <RotateCcw size={20} color={sessionEnded ? "#9CA3AF" : "#6B7280"} />
-            <Text className={`text-base font-medium ${sessionEnded ? "text-gray-400" : "text-gray-600"}`}>Reiniciar</Text>
+            <Text
+              className={`text-base font-medium ${sessionEnded ? "text-gray-400" : "text-gray-600"
+                }`}
+            >
+              Reiniciar
+            </Text>
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity className="flex-row items-center justify-center bg-blue-500 py-3.5 px-6 rounded-xl gap-2" onPress={() => setIsEditing(true)} activeOpacity={0.7}>
+        <TouchableOpacity
+          className="flex-row items-center justify-center bg-blue-500 py-3.5 px-6 rounded-xl gap-2"
+          onPress={() => setIsEditing(true)}
+          activeOpacity={0.7}
+        >
           <Edit2 size={16} color="#FFFFFF" />
           <Text className="text-base font-semibold text-white">Editar Tarefa</Text>
         </TouchableOpacity>
