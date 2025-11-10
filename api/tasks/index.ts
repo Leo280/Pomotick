@@ -36,7 +36,7 @@ export const useInsertTask = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    async mutationFn(data: InsertTask) {
+    async mutationFn(data: Partial<InsertTask> & { pomodoros: number }) {
       const { data: newTask, error } = await supabase
         .from("tasks")
         .insert({
@@ -44,10 +44,11 @@ export const useInsertTask = () => {
           total_pomodoros: data.pomodoros,
           completed_pomodoros: 0,
           is_active: false,
-          // TODO = trocar para o que o usuário escolher
-          time_remaining: data.pomodoros * 25,
           user_id: user?.id,
-          pomodoro_time: 2,
+          pomodoro_time: data.pomodoro_time,
+          short_break_time: data.short_break_time,
+          time_remaining: data.pomodoros * (data.pomodoro_time || 25),
+          long_break_time: data.long_break_time,
         })
         .select()
       if (error) {

@@ -17,20 +17,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Tasks() {
   const { setActiveTask, pauseActiveTask } = useTask()
-  const { data: tasks, error, isLoading, refetch } = useTaskList()
-  const [showCreateModal, setShowCreateModal] = useState(false);
+  const { data: tasks, error, isLoading } = useTaskList()
 
   if (isLoading) return <ActivityIndicator />
 
   if (error) console.error(error.message)
-
-  const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
-  };
-
-  const activeTask = tasks?.find(task => task.is_active);
 
   const handleStartTask = (taskId: string) => {
     setActiveTask(taskId);
@@ -41,7 +32,6 @@ export default function Tasks() {
   };
 
   return (
-
     <SafeAreaView className="flex-1 p-6 bg-white">
       <View className="flex-row justify-between items-center">
         <View className='flex-row justify-center '>
@@ -55,7 +45,6 @@ export default function Tasks() {
             name={'heart'}
             size={18}
             color={'#1F2937 '}
-
           />
           <Text className="text-gray-800 font-semibold"> Favoritos </Text>
         </TouchableOpacity>
@@ -64,8 +53,6 @@ export default function Tasks() {
             name={'clock'}
             size={18}
             color={'#1F2937'}
-
-
           />
           <Text className="text-gray-800 font-semibold"> Histórico de Tarefas </Text>
         </TouchableOpacity>
@@ -94,7 +81,5 @@ export default function Tasks() {
         />
       </SafeAreaView>
     </SafeAreaView>
-
   )
-
 }

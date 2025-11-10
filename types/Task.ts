@@ -1,4 +1,4 @@
-import { Tables, UpdateTables } from './Helper';
+import { InsertTables, Tables, UpdateTables } from './Helper';
 
 export type TaskDB = Tables<"tasks">
 
@@ -19,10 +19,7 @@ export interface Task {
   longBreakTime?: number;
 }
 
-export type InsertTask = {
-  title: string;
-  pomodoros: number;
-}
+export type InsertTask = InsertTables<"tasks"> & { pomodoros: number }
 
 export type UpdateTask = UpdateTables<"tasks">
 

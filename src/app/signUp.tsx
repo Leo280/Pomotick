@@ -1,28 +1,32 @@
+import { useInsertProfile } from "@/api/profiles";
 import { supabase } from "@/libs/supabase";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
+import { useState } from "react";
 import { Controller, useForm } from 'react-hook-form';
-import { Alert, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { z } from 'zod';
-import LoginMasthead from "../components/LoginMasthead";
 import Dropdown from "../components/Dropdown";
 
-
 const signUpFormSchema = z.object({
-
   nome: z.string()
-    .nonempty('O nome é obrigatório')
-    .min(4, 'O nome deve ter no mínimo 4 caracteres'),
+    .nonempty('O nome é obrigatório'),
   email: z.string()
     .nonempty('E-mail é obrigatório')
     .email('E-mail inválido'),
   password: z.string()
     .nonempty('A senha é obrigatória')
-    .regex(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/, 'A senha deve ter no mínimo 8 caracteres, incluindo letras e números.'),
+    .regex(
+      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/,
+      'A senha deve ter no mínimo 8 caracteres, incluindo letras, números e pelo menos um caractere especial.'
+    ),
   confirmPassword: z.string()
     .nonempty('A senha é obrigatória')
-    .regex(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/, 'A senha deve ter no mínimo 8 caracteres, incluindo letras e números.'),
+    .regex(
+      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/,
+      'A senha deve ter no mínimo 8 caracteres, incluindo letras, números e pelo menos um caractere especial.'
+    ),
 })
   .refine(({ password, confirmPassword }) => password === confirmPassword, {
     message: 'As senhas não coincidem',
@@ -30,25 +34,25 @@ const signUpFormSchema = z.object({
   })
 
 export default function Login() {
+  const [gender, setGender] = useState<string>("")
+  const { mutate: insertProfile } = useInsertProfile()
   const router = useRouter();
   const { control, handleSubmit, getValues, formState: { errors } } = useForm({ resolver: zodResolver(signUpFormSchema) })
 
   const onSignUp = async () => {
-    const { email, password } = getValues()
-    const { error } = await supabase.auth.signUp({ email, password })
-    if (error) {
-      Alert.alert('Erro ao cadastrar', error.message)
-    }
+    const { email, password, nome } = getValues()
+    const { data } = await supabase.auth.signUp({ email, password });
+    insertProfile({ id: data.user?.id, email, name: nome, gender })
   }
-  return (
 
+  return (
     <SafeAreaView className="flex-1 bg-white ">
       <View className="flex-1 bg-white">
         <View className="flex-col items-center gap-2 justify-center mt-12">
           <Text className="font-bold text-2xl ">Cadastre-se no Pomotick</Text>
         </View>
         <View className="mt-2">
-            <Text className="text-base text-gray-900 p-2 font-extrabold ms-6">Nome</Text>
+          <Text className="text-base text-gray-900 p-2 font-extrabold ms-6">Nome</Text>
           <Controller
             control={control}
             render={({ field: { onChange, onBlur, value } }) => (
@@ -62,8 +66,9 @@ export default function Login() {
             )}
             name="nome"
           />
-          <Text className="text-base text-gray-900 p-2 font-extrabold ms-6">Genêro</Text>
-          <Dropdown />
+          {errors.nome && <Text>{errors.nome.message}</Text>}
+          <Text className="text-base text-gray-900 p-2 font-extrabold ms-6">Gênero</Text>
+          <Dropdown value={gender} onChange={setGender} />
           <Text className="text-base text-gray-900 p-2 font-extrabold ms-6">E-mail</Text>
           <Controller
             control={control}
