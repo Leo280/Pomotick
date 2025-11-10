@@ -17,6 +17,7 @@ export interface Task {
   sessionType: string;
   shortBreakTime?: number;
   longBreakTime?: number;
+  isCompleted: boolean
 }
 
 export type InsertTask = InsertTables<"tasks"> & { pomodoros: number }
@@ -39,5 +40,6 @@ export function mapTaskDBToTask(db: TaskDB): Task {
     sessionType: db.session_type || "pomodoro",
     shortBreakTime: db.short_break_time || 5,
     longBreakTime: db.long_break_time || 15,
+    isCompleted: db.is_completed || false
   };
 }

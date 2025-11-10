@@ -175,7 +175,8 @@ export default function StudyScreen() {
               body: {
                 session_type: "pomodoro",
                 last_update_timer: new Date().toISOString(),
-                is_active: false
+                is_active: false,
+                is_completed: true
               }
             });
           } else {
