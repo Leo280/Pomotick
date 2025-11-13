@@ -1,21 +1,18 @@
 import { useDeleteTask } from '@/api/tasks';
-import useTask from '@/stores/TaskStore';
 import { mapTaskDBToTask, TaskDB } from '@/types/Task';
 import { useRouter } from 'expo-router';
 import { Clock, Trash2 } from 'lucide-react-native';
-import { Pressable, Text, TouchableOpacity, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 
 interface TaskCardProps {
   taskdb: TaskDB;
-  onStart: () => void;
-  onPause: () => void;
 }
 
-export function TaskCard({ taskdb, onStart, onPause }: TaskCardProps) {
+export function TaskCard({ taskdb }: TaskCardProps) {
   const task = mapTaskDBToTask(taskdb);
   const { mutate: deleteTask } = useDeleteTask()
   const progress = (task.completedPomodoros / task.totalPomodoros) * 100;
-  const totalMinutes = task.totalPomodoros * 25;
+  const totalMinutes = task.totalPomodoros * task.pomodoroTime;
   const router = useRouter()
 
   return (

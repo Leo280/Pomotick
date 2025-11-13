@@ -1,88 +1,187 @@
 import { useInsertTask } from "@/api/tasks";
-import useTask from "@/stores/TaskStore";
-import { DrawerToggleButton } from "@react-navigation/drawer";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { router } from 'expo-router';
 import { Clock, Minus, Pause, Plus } from 'lucide-react-native';
 import { useState } from 'react';
+import { Controller, useForm } from "react-hook-form";
 import {
+  Image,
   ScrollView,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 import { Text } from "react-native-gesture-handler";
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { z } from 'zod';
 
-export default function addTask() {
+const addTaskSchema = z.object({
+  title: z.string().nonempty("Coloque um título para a sua tarefa"),
+  focusTime: z.coerce.number()
+    .int("Digite um número inteiro")
+    .min(15, "O tempo de foco deve ser pelo menos 15 minutos")
+    .max(50, "O tempo de foco não deve ultrapassar 50 minutos"),
+  shortBreak: z.coerce.number()
+    .int("Digite um número inteiro")
+    .min(5, "A pausa curta deve ser de pelo menos 5 minutos")
+    .max(15, "A pausa curta não deve ultrapassar 15 minutos"),
+  longBreak: z.coerce.number()
+    .int("Digite um número inteiro")
+    .min(15, "A pausa longa deve ser de pelo menos 15 minutos")
+    .max(30, "A pausa longa não deve ultrapassar 30 minutos"),
+});
 
-  const { mutate: insertTask } = useInsertTask()
-  const [title, setTitle] = useState('');
+type AddTaskSchema = z.infer<typeof addTaskSchema>;
+
+export default function AddTask() {
+  const { mutate: insertTask } = useInsertTask();
+
   const [pomodoros, setPomodoros] = useState(4);
+  const [selectedButton, setSelectedButton] = useState<number | null>(null);
+
+  const { control, handleSubmit, formState: { errors }, watch, reset } = useForm<AddTaskSchema>({
+    resolver: zodResolver(addTaskSchema),
+    defaultValues: {
+      title: "",
+      focusTime: 25,
+      shortBreak: 5,
+      longBreak: 15,
+    }
+  });
 
   const adjustPomodoros = (delta: number) => {
     const newValue = Math.max(1, Math.min(12, pomodoros + delta));
     setPomodoros(newValue);
   };
 
-  const totalMinutes = pomodoros * 25;
+  const focusTime = watch("focusTime");
+  const title = watch("title");
+
+  const totalMinutes = pomodoros * Number(focusTime);
   const presetOptions = [2, 4, 6, 8];
 
-  const handleCreateTask = async () => {
-    if (title.trim()) {
-      insertTask({ title, pomodoros })
-      setTitle('');
-      setPomodoros(4);
-      router.push("/")
-    }
+  const handleCreateTask = async (data: AddTaskSchema) => {
+    insertTask({
+      title: data.title.trim(),
+      pomodoro_time: data.focusTime,
+      short_break_time: data.shortBreak,
+      long_break_time: data.longBreak,
+      pomodoros,
+    });
+
+    reset();
+    setPomodoros(4);
+    router.push("/");
   };
 
-  return (
+  const buttons = [
+    {
+      id: 1,
+      label: "Esgotado",
+      color: "#2B613E",
+      image: require("../../../assets/icons/darkgreen_tomato.png"),
+      pomodoroTime: 15,
+      short: 5,
+      long: 10
+    },
+    {
+      id: 2,
+      label: "Cansado",
+      color: "#45D145",
+      image: require("../../../assets/icons/green_tomato.png"),
+      pomodoroTime: 20,
+      short: 5,
+      long: 15,
+    },
+    {
+      id: 3,
+      label: "Normal",
+      color: "#4F5950",
+      image: require("../../../assets/icons/gray_tomato.png"),
+      pomodoroTime: 25,
+      short: 5,
+      long: 15
+    },
+    {
+      id: 4,
+      label: "Disposto",
+      color: "#F97316",
+      image: require("../../../assets/icons/orange_tomato.png"),
+      pomodoroTime: 35,
+      short: 5,
+      long: 15
+    },
+    {
+      id: 5,
+      label: "Pra cima",
+      color: "red",
+      image: require("../../../assets/icons/red_tomato.png"),
+      pomodoroTime: 50,
+      short: 10,
+      long: 15
+    },
+  ];
 
-    <SafeAreaView className="flex-1  pt-9 bg-white">
-      <View className='flex-row justify-center items-center w-100%'>
+  const selected = buttons.find((b) => b.id === selectedButton);
+
+  return (
+    <SafeAreaView className="flex-1 pt-9 bg-white">
+      <View className='flex-row justify-center items-center'>
         <Text className="text-2xl text-blue-950 pl-3 font-bold">Criar Tarefas</Text>
       </View>
-      <ScrollView showsVerticalScrollIndicator={false} >
+
+      <ScrollView showsVerticalScrollIndicator={false}>
         <View className="px-6 pt-6">
           <View className="mb-8">
-            <Text className="text-lg font-semibold text-gray-800 ">Nome da Tarefa</Text>
-            <TextInput
-              className="bg-white border border-gray-200 rounded-xl p-4 text-base text-gray-800 min-h-24"
-              style={{ textAlignVertical: 'top' }}
-              value={title}
-              onChangeText={setTitle}
-              placeholder="Ex: Estudar React Native, Ler documentação..."
-              placeholderTextColor="#9CA3AF"
-              multiline
-              maxLength={100}
+            <Text className="text-lg font-semibold text-gray-800">Nome da Tarefa</Text>
+            <Controller
+              control={control}
+              name="title"
+              render={({ field: { value, onChange, onBlur } }) => (
+                <TextInput
+                  className="bg-white border border-gray-200 rounded-xl p-4 text-base text-gray-800 min-h-24"
+                  style={{ textAlignVertical: 'top' }}
+                  value={value}
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  placeholder="Ex: Estudar React Native, Ler documentação..."
+                  placeholderTextColor="#9CA3AF"
+                  multiline
+                  maxLength={100}
+                />
+              )}
             />
-            <Text className="text-xs text-gray-400 text-right mt-2">{title.length}/100</Text>
+            <Text className="text-xs text-gray-400 text-right mt-2">{title?.length || 0}/100</Text>
+            {errors.title && <Text className="text-red-500">{errors.title.message}</Text>}
           </View>
 
           <View className="mb-6">
             <Text className="text-xl font-semibold text-gray-800">Como estou me sentindo?</Text>
-            <Text className="text-gray-500">Escolha entre as opções abaixo, qual seu estado mental no momento.</Text>
-            <View className="bg-white rounded-xl p-4 mt-5 shadow-2xl flex-row justify-between items-center gap-3">
-              <TouchableOpacity className="flex-col items-center justify-center">
-                <Text className="text-3xl">😞</Text>
-                <Text className="text-gray-500 text-sm">Esgotado</Text>
-              </TouchableOpacity>
-              <TouchableOpacity className="flex-col items-center justify-center">
-                <Text className="text-3xl">🥱</Text>
-                <Text className="text-gray-500 text-sm">Cansado</Text>
-              </TouchableOpacity>
-              <TouchableOpacity className="flex-col items-center justify-center">
-                <Text className="text-3xl">😐</Text>
-                <Text className="text-gray-500 text-sm">Normal</Text>
-              </TouchableOpacity>
-              <TouchableOpacity className="flex-col items-center justify-center">
-                <Text className="text-3xl">😀</Text>
-                <Text className="text-gray-500 text-sm">Disposto</Text>
-              </TouchableOpacity>
-              <TouchableOpacity className="flex-col items-center justify-center">
-                <Text className="text-3xl">🤩</Text>
-                <Text className="text-gray-500 text-sm">Pra cima</Text>
-              </TouchableOpacity>
+            <Text className="text-gray-500">Escolha, dentre as opções abaixo, o seu humor atual.</Text>
+
+            <View className="flex-1 items-center justify-center bg-white">
+              <View className="w-full items-center mt-6">
+                <View className="flex-row justify-center items-center w-[85%] gap-2">
+                  {buttons.map((btn) => (
+                    <TouchableOpacity
+                      key={btn.id}
+                      className={`w-20 h-20 rounded-2xl justify-center items-center shadow-2xl ${selectedButton === btn.id ? "bg-gray-200" : "bg-white"}`}
+                      onPress={() => setSelectedButton(selectedButton === btn.id ? null : btn.id)}
+                    >
+                      <Text className="font-medium text-xs" style={{ color: btn.color }}>{btn.label}</Text>
+                      <Image source={btn.image} className="w-10 h-10" resizeMode="cover" />
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+
+              {selected && (
+                <View className="mt-8 w-80 bg-white p-4 rounded-2xl shadow items-center">
+                  <Text className="text-xl font-bold" style={{ color: selected.color }}>{selected.label}</Text>
+                  <Text className="text-gray-700 text-center">Sugestão de Personalização:</Text>
+                  <Text className="text-gray-700 text-center">{`${selected.pomodoroTime} minutos de foco\n${selected.short} minutos de pausa curta\n${selected.long} minutos de pausa longa`}</Text>
+                </View>
+              )}
             </View>
           </View>
 
@@ -95,15 +194,10 @@ export default function addTask() {
                 {presetOptions.map((preset) => (
                   <TouchableOpacity
                     key={preset}
-                    className={`border rounded-full px-4 py-3 min-w-12 items-center ${pomodoros === preset
-                      ? 'bg-black border-black'
-                      : 'bg-white border-black'
-                      }`}
+                    className={`border rounded-full px-4 py-3 min-w-12 items-center ${pomodoros === preset ? 'bg-black border-black' : 'bg-white border-black'}`}
                     onPress={() => setPomodoros(preset)}
                   >
-                    <Text className={`text-sm font-bold ${pomodoros === preset ? 'text-white' : 'text-black'
-
-                      }`}>
+                    <Text className={`text-sm font-bold ${pomodoros === preset ? 'text-white' : 'text-black'}`}>
                       {preset}
                     </Text>
                   </TouchableOpacity>
@@ -115,8 +209,7 @@ export default function addTask() {
               <Text className="text-sm font-medium text-gray-500 mb-4 text-center">Personalizar:</Text>
               <View className="flex-row items-center justify-center">
                 <TouchableOpacity
-                  className={`w-11 h-11 rounded-full justify-center items-center shadow-2xl border border-gray-100 ${pomodoros <= 1 ? 'bg-gray-100' : 'bg-white'
-                    }`}
+                  className={`w-11 h-11 rounded-full justify-center items-center shadow-2xl border border-gray-100 ${pomodoros <= 1 ? 'bg-gray-100' : 'bg-white'}`}
                   onPress={() => adjustPomodoros(-1)}
                   disabled={pomodoros <= 1}
                 >
@@ -131,14 +224,67 @@ export default function addTask() {
                 </View>
 
                 <TouchableOpacity
-                  className={`w-11 h-11 rounded-full justify-center items-center shadow-2xl border border-gray-100 ${pomodoros >= 12 ? 'bg-gray-100' : 'bg-white'
-                    }`}
+                  className={`w-11 h-11 rounded-full justify-center items-center shadow-2xl border border-gray-100 ${pomodoros >= 12 ? 'bg-gray-100' : 'bg-white'}`}
                   onPress={() => adjustPomodoros(1)}
                   disabled={pomodoros >= 12}
                 >
                   <Plus size={20} color={pomodoros >= 12 ? '#D1D5DB' : '#6B7280'} />
                 </TouchableOpacity>
               </View>
+            </View>
+
+            <View className="mt-8 mb-4">
+              <Text className="text-gray-700 mb-1">Tempo de foco (minutos)</Text>
+              <Controller
+                control={control}
+                name="focusTime"
+                render={({ field: { value, onChange, onBlur } }) => (
+                  <TextInput
+                    className="bg-white rounded-xl p-3 text-center text-lg border border-gray-300"
+                    keyboardType="numeric"
+                    value={String(value)}
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                  />
+                )}
+              />
+              {errors.focusTime && <Text className="text-red-500">{errors.focusTime.message}</Text>}
+            </View>
+
+            <View className="mb-4">
+              <Text className="text-gray-700 mb-1">Pausa curta (minutos)</Text>
+              <Controller
+                control={control}
+                name="shortBreak"
+                render={({ field: { value, onChange, onBlur } }) => (
+                  <TextInput
+                    className="bg-white rounded-xl p-3 text-center text-lg border border-gray-300"
+                    keyboardType="numeric"
+                    value={String(value)}
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                  />
+                )}
+              />
+              {errors.shortBreak && <Text className="text-red-500">{errors.shortBreak.message}</Text>}
+            </View>
+
+            <View className="mb-4">
+              <Text className="text-gray-700 mb-1">Pausa longa (minutos)</Text>
+              <Controller
+                control={control}
+                name="longBreak"
+                render={({ field: { value, onChange, onBlur } }) => (
+                  <TextInput
+                    className="bg-white rounded-xl p-3 text-center text-lg border border-gray-300"
+                    keyboardType="numeric"
+                    value={String(value)}
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                  />
+                )}
+              />
+              {errors.longBreak && <Text className="text-red-500">{errors.longBreak.message}</Text>}
             </View>
 
             <View className="bg-white rounded-xl p-4 mt-5 shadow-2xl">
@@ -159,30 +305,27 @@ export default function addTask() {
             <Text className="text-base font-bold text-cyan-600 mb-4">Como funciona o Método Pomodoro?</Text>
             <View className="gap-2">
               <Text className="text-sm text-black leading-5">🍅 25 minutos de trabalho focado</Text>
-              <Text className="text-sm text-black leading-5">☕ 5 minutos de pausa curta</Text>
-              <Text className="text-sm text-black leading-5">🛋️ 15-30 min de pausa longa a cada 4 pomodoros</Text>
-              <Text className="text-sm text-black leading-5">🔄 Repita o ciclo até completar a tarefa</Text>
+              <Text className="text-sm text-black leading-5">⏸ 5 minutos de pausa curta</Text>
+              <Text className="text-sm text-black leading-5">💪 15-30 min de pausa longa a cada 4 pomodoros</Text>
+              <Text className="text-sm text-black leading-5">🔁 Repita o ciclo até completar a tarefa</Text>
             </View>
           </View>
         </View>
       </ScrollView>
 
-      <View className=" flex-row items-center justify-center bg-white mt-4 mb-8">
+      <View className="flex-row items-center justify-center bg-white mt-4 mb-20">
         <TouchableOpacity
-          className={`rounded-full py-4 flex-row items-center justify-center gap-2 w-56 mb-5 ${!title.trim() ? 'bg-gray-300' : 'bg-blue-500'
-            }`}
-          onPress={handleCreateTask}
+          className={`rounded-full py-4 flex-row items-center justify-center gap-2 w-56 mb-5 ${!title.trim() ? 'bg-gray-300' : 'bg-blue-500'}`}
+          onPress={handleSubmit(handleCreateTask)}
           disabled={!title.trim()}
         >
           <Plus size={20} color={!title.trim() ? '#9CA3AF' : '#FFFFFF'} />
-          <Text className={`text-base font-semibold ${!title.trim() ? 'text-gray-500' : 'text-white'
-            }`}>
+          <Text className={`text-base font-semibold ${!title.trim() ? 'text-gray-500' : 'text-white'}`}>
             Criar Tarefa
           </Text>
         </TouchableOpacity>
       </View>
-    </SafeAreaView >
-
-  )
-
+    </SafeAreaView>
+  );
 }
+

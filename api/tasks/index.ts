@@ -8,10 +8,15 @@ export const useTaskList = () => {
   return useQuery({
     networkMode: "offlineFirst",
     enabled: !!user,
-    queryKey: ['tasks'],
+    queryKey: ['tasks', user?.id],
     refetchOnMount: true,
     queryFn: async () => {
-      const { data, error } = await supabase.from("tasks").select("*").eq("user_id", user?.id)
+      const { data, error } = await supabase
+        .from("tasks")
+        .select("*")
+        .eq("user_id", user?.id)
+        .eq("is_completed", false)
+        .order("created_at", { ascending: false })
       if (error) throw new Error(error.message)
       return data
     }
@@ -36,7 +41,7 @@ export const useInsertTask = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    async mutationFn(data: InsertTask) {
+    async mutationFn(data: Partial<InsertTask> & { pomodoros: number }) {
       const { data: newTask, error } = await supabase
         .from("tasks")
         .insert({
@@ -44,10 +49,12 @@ export const useInsertTask = () => {
           total_pomodoros: data.pomodoros,
           completed_pomodoros: 0,
           is_active: false,
-          // TODO = trocar para o que o usuário escolher
-          time_remaining: data.pomodoros * 25,
           user_id: user?.id,
-          pomodoro_time: 2,
+          pomodoro_time: data.pomodoro_time,
+          short_break_time: data.short_break_time,
+          time_remaining: data.pomodoros * (data.pomodoro_time || 25),
+          long_break_time: data.long_break_time,
+          is_completed: false
         })
         .select()
       if (error) {
@@ -57,7 +64,7 @@ export const useInsertTask = () => {
       return newTask
     },
     async onSuccess() {
-      await queryClient.invalidateQueries({ queryKey: ["tasks"] })
+      await queryClient.invalidateQueries({ queryKey: ["tasks", user?.id] })
     }
   })
 }
@@ -95,6 +102,23 @@ export const useDeleteTask = () => {
     },
     async onSuccess() {
       await queryClient.invalidateQueries({ queryKey: ["tasks"] })
+    }
+  })
+}
+
+export const useCompletedTasks = () => {
+  const { user } = useAuthStore()
+  return useQuery({
+    queryKey: ["completedTasks", user?.id],
+    enabled: !!user?.id,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("tasks")
+        .select("*")
+        .eq("user_id", user?.id)
+        .eq("is_completed", true)
+        .order("created_at", { ascending: false })
+      return data ?? []
     }
   })
 }

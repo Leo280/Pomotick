@@ -1,4 +1,4 @@
-import { Tables, UpdateTables } from './Helper';
+import { InsertTables, Tables, UpdateTables } from './Helper';
 
 export type TaskDB = Tables<"tasks">
 
@@ -17,12 +17,10 @@ export interface Task {
   sessionType: string;
   shortBreakTime?: number;
   longBreakTime?: number;
+  isCompleted: boolean
 }
 
-export type InsertTask = {
-  title: string;
-  pomodoros: number;
-}
+export type InsertTask = InsertTables<"tasks"> & { pomodoros: number }
 
 export type UpdateTask = UpdateTables<"tasks">
 
@@ -42,5 +40,6 @@ export function mapTaskDBToTask(db: TaskDB): Task {
     sessionType: db.session_type || "pomodoro",
     shortBreakTime: db.short_break_time || 5,
     longBreakTime: db.long_break_time || 15,
+    isCompleted: db.is_completed || false
   };
 }

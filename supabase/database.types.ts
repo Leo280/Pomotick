@@ -14,12 +14,37 @@ export type Database = {
   }
   public: {
     Tables: {
+      profiles: {
+        Row: {
+          created_at: string | null
+          email: string
+          gender: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          gender: string
+          id: string
+          name: string
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          gender?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       tasks: {
         Row: {
           completed_pomodoros: number
           created_at: string
           id: string
           is_active: boolean
+          is_completed: boolean
           last_update_timer: string | null
           long_break_time: number
           pomodoro_time: number
@@ -36,6 +61,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_active: boolean
+          is_completed?: boolean
           last_update_timer?: string | null
           long_break_time?: number
           pomodoro_time?: number
@@ -52,6 +78,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_active?: boolean
+          is_completed?: boolean
           last_update_timer?: string | null
           long_break_time?: number
           pomodoro_time?: number

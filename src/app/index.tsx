@@ -2,7 +2,7 @@ import { supabase } from "@/libs/supabase";
 import { useAuthStore } from "@/stores/AuthStore";
 import { Redirect } from "expo-router";
 import { useEffect } from "react";
-import { ActivityIndicator, AppState, View } from "react-native";
+import { ActivityIndicator, AppState, Image, View } from "react-native";
 
 AppState.addEventListener('change', (state) => {
   if (state === 'active') {
@@ -28,6 +28,10 @@ export default function Index() {
   if (loading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Image
+          source={require("@/assets/icons/icon.png")}
+          style={{ width: 64, height: 64, marginBottom: 16 }}
+        />
         <ActivityIndicator size="large" />
       </View>
     );

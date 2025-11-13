@@ -9,7 +9,8 @@ export default function About() {
   return (
 
     <SafeAreaView className="flex-1 ">
-      <Masthead title="Sobre"
+      <Masthead 
+        title="Sobre"
         image={require('../../../assets/images/img_masthead.png')}
       >
         <View className="flex-row justify-between items-center">
@@ -18,7 +19,7 @@ export default function About() {
           </View>
         </View>
       </Masthead>
-      <ScrollView className="flex-1 bg-white   rounded-t-2xl z-2">
+      <ScrollView className="flex-1 bg-white   rounded-t-2xl ">
         <Text className="text-2xl text-gray-900 p-4 font-extrabold ">Criadores</Text>
         <View className="flex-row items-center gap-6 justify-center">
           <Image className="w-20 h-20 rounded-full" source={require('@/assets/images/Jesua-perfil.jpg')} />
