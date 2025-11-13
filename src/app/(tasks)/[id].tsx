@@ -248,6 +248,11 @@ export default function StudyScreen() {
     return { ...t, minutes, seconds };
   };
 
+  const handleEditTask = () => {
+    updateTask({ id, body: { title: taskName } })
+    setIsEditing(false)
+  }
+
   const timer = getCurrentTimer()
   const remainingPomodoros = Math.max(0, totalPomodoros - completed);
   const radius = 120;
@@ -271,7 +276,7 @@ export default function StudyScreen() {
       <View className="flex-1 px-5">
         {isEditing ? (
           <TextInput className="text-xl font-semibold text-gray-800 mb-6 p-3 bg-white rounded-lg border-2 border-blue-500"
-            value={taskName} onChangeText={setTaskName} onBlur={() => setIsEditing(false)} autoFocus selectTextOnFocus
+            value={taskName} onChangeText={setTaskName} onBlur={handleEditTask} autoFocus selectTextOnFocus
           />
         ) : (
           <Text className="text-xl font-semibold text-gray-800 mb-6">{taskName}</Text>
@@ -328,7 +333,9 @@ export default function StudyScreen() {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity className="flex-row items-center justify-center bg-blue-500 py-3.5 px-6 rounded-xl gap-2" onPress={() => setIsEditing(true)} activeOpacity={0.7}>
+        <TouchableOpacity className="flex-row items-center justify-center bg-blue-500 py-3.5 px-6 rounded-xl gap-2"
+          onPress={() => setIsEditing(true)}
+          activeOpacity={0.7}>
           <Edit2 size={16} color="#FFFFFF" />
           <Text className="text-base font-semibold text-white">Editar Tarefa</Text>
         </TouchableOpacity>
