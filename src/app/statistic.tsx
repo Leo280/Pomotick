@@ -9,6 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle } from 'react-native-svg';
 import { ChevronLeft, Play, Pause, RotateCcw, Edit2 } from 'lucide-react-native';
 import { router } from 'expo-router';
+import { ThemeProvider } from "../../contexts/ThemeContext";
 
 const POMODORO_TIME = 5 * 60;
 const POMODORO_COUNT = 4;
@@ -74,7 +75,8 @@ export default function StudyScreen() {
   const remainingPomodoros = POMODORO_COUNT - completedPomodoros;
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-100">
+  <ThemeProvider>
+    <SafeAreaView className="flex-1 bg-gray-100 dark:bg-neutral-900">
       <View className="px-5 py-3">
         <TouchableOpacity
           className="w-10 h-10 justify-center"
@@ -98,7 +100,7 @@ export default function StudyScreen() {
           <Text className="text-xl font-semibold text-gray-800 mb-6">{taskName}</Text>
         )}
 
-        <View className="bg-white rounded-3xl p-8 items-center shadow-lg mb-5">
+        <View className="bg-white rounded-3xl p-8 items-center shadow-lg mb-5 dark:bg-neutral-800">
           <View className="relative items-center justify-center">
             <Svg width={radius * 2 + strokeWidth * 2} height={radius * 2 + strokeWidth * 2}>
               <Circle
@@ -150,7 +152,7 @@ export default function StudyScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity
-            className="flex-1 flex-row items-center justify-center bg-white py-4 px-5 rounded-2xl gap-2 shadow-sm"
+            className="flex-1 flex-row items-center justify-center bg-white py-4 px-5 rounded-2xl gap-2 shadow-sm dark:bg-neutral-800"
             onPress={resetTimer}
             activeOpacity={0.7}>
             <RotateCcw size={20} color="#6B7280" />
@@ -177,5 +179,6 @@ export default function StudyScreen() {
         </TouchableOpacity>
       </View>
     </SafeAreaView>
+  </ThemeProvider>
   );
 }
