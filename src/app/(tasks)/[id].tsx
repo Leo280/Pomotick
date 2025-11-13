@@ -249,8 +249,8 @@ export default function StudyScreen() {
   };
 
   const handleEditTask = () => {
-    setIsEditing(true)
     updateTask({ id, body: { title: taskName } })
+    setIsEditing(false)
   }
 
   const timer = getCurrentTimer()
