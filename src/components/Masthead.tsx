@@ -10,14 +10,15 @@ interface MastheadProps {
 export default function Masthead({ image, children }: MastheadProps) {
   return (
     <SafeAreaView className="">
-      <Image className="absolute bottom-0 left-0 right-0 top-0 w-full h-96 object-cover"
+      <Image className="absolute bottom-0 left-0 right-0 top-18 w-full h-80 object-cover"
         source={image}
         alt="masthead image"
       />
-      <View className="items-center justify-center">
+      <View className="position-relative bottom-20 px-4 pt-10">
         {children}
       </View>
-      <Text className="color-white p-16  font-bold text-lg" />
+       <Text className="color-white p-12 font-bold text-lg " />
+    
     </SafeAreaView >
   )
 }

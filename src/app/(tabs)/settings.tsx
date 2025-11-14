@@ -1,5 +1,4 @@
 import useAppSettings from "@/stores/AppSettingsStore";
-import { DrawerToggleButton } from "@react-navigation/drawer";
 import {
   Bell,
   ChevronRight,
@@ -14,10 +13,14 @@ import React, { useState } from "react";
 import { ScrollView, Switch, TouchableOpacity, View } from "react-native";
 import { Text } from "react-native-gesture-handler";
 import { AnimatedModal } from "../../components/AnimatedModal";
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTheme } from "../../../contexts/ThemeContext";
 
 
 export default function SettingsScreen() {
+
+  const { theme, toggleTheme } = useTheme();
+
   const settingsStore = useAppSettings()
   const settings = settingsStore.settings
 
@@ -50,8 +53,8 @@ export default function SettingsScreen() {
           {icon}
         </View>
         <View className="flex-1">
-          <Text className="text-base font-medium text-gray-800">{title}</Text>
-          {subtitle && <Text className="text-sm text-gray-500 mt-0.5">{subtitle}</Text>}
+          <Text className="text-base font-medium text-gray-800 dark:text-white">{title}</Text>
+          {subtitle && <Text className="text-sm text-gray-500 mt-0.5 dark:text-gray-300">{subtitle}</Text>}
         </View>
       </View>
       <View className="flex-row items-center gap-2">
@@ -62,108 +65,18 @@ export default function SettingsScreen() {
   );
   return (
 
-    <SafeAreaView className="flex-1 p-4 bg-gray-100">
+    <SafeAreaView className="flex-1 p-4 bg-gray-100 dark:bg-neutral-900">
       <View className="flex-row justify-between items-center ml-28">
         <View className='flex-row justify-center items-center pt-5'>
-          <Text className="text-2xl text-blue-950 pl-3 font-bold">Configurações</Text>
+          <Text className="text-2xl text-blue-950 pl-3 font-bold dark:text-white">Configurações</Text>
         </View>
       </View>
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-        <AnimatedModal
-          visible={visibleFocus}
-          initialValue={settings.focusDuration / 60000}
-          minValue={25}
-          maxValue={60}
-          title="Escolha o tempo de duração do Foco"
-          onClose={() => setVisibleFocus(false)}
-          onSave={(newValue) => {
-            settingsStore.changeFocusDuration(newValue * 60000);
-            setVisibleFocus(false);
-          }}
-        />
-        <AnimatedModal
-          visible={visibleShortPause}
-          initialValue={settings.shortPause / 60000}
-          minValue={5}
-          maxValue={20}
-          title="Escolha o tempo das pausas curtas"
-          onClose={() => setVisibleShortPause(false)}
-          onSave={(newValue) => {
-            settingsStore.changeShortPauseDuration(newValue * 60000);
-            setVisibleShortPause(false);
-          }}
-        />
-        <AnimatedModal
-          visible={visibleLongPause}
-          initialValue={settings.longPause / 60000}
-          minValue={15}
-          maxValue={45}
-          title="Escolha o tempo das pausas longas"
-          onClose={() => setVisibleLongPause(false)}
-          onSave={(newValue) => {
-            settingsStore.changeLongPauseDuration(newValue * 60000);
-            setVisibleLongPause(false);
-          }}
-        />
-        <View className="mt-6 shadow-2xl">
-          <Text className="text-base font-semibold text-gray-800 px-6 mb-3">Perfil</Text>
-          <View className="bg-white mx-6 rounded-3xl shadow-sm">
-            <SettingRow
-              icon={<User size={20} color="#fff" />}
-              title="Meu Perfil"
-              subtitle="Gerencie suas informações pessoais"
-              showArrow
-              iconBackgroundClassName="bg-[#888]"
-              onPress={() => console.log('Perfil pressed')}
-            />
-          </View>
-        </View>
+      
 
         <View className="mt-6 shadow-2xl">
-          <Text className="text-base font-semibold text-gray-800 px-6 mb-3">Pomodoro</Text>
-          <View className="bg-white mx-6 rounded-3xl shadow-sm">
-            <SettingRow
-              icon={<Clock size={20} color="#fff" />}
-              title="Duração do Foco"
-              subtitle={`${settings.focusDuration / 60000} minutos`}
-              showArrow
-              iconBackgroundClassName="bg-[#270C56]"
-              onPress={() => {
-                setVisibleFocus(true);
-                setModalTitle("Escolha o tempo de duração do Foco");
-              }}
-
-            />
-            <View className="h-px bg-gray-200 ml-17" />
-            <SettingRow
-              icon={<Hourglass size={20} color="#fff" />}
-              title="Pausa Curta"
-              subtitle={`${settings.shortPause / 60000} minutos`}
-              showArrow
-              iconBackgroundClassName="bg-[#7C53C2]"
-              onPress={() => {
-                setVisibleShortPause(true);
-                setModalTitle("Escolha o tempo das pausas curtas");
-              }}
-            />
-            <View className="h-px bg-gray-200 ml-17" />
-            <SettingRow
-              icon={<Hourglass size={20} color="#fff" />}
-              title="Pausa Longa"
-              subtitle={`${settings.longPause / 60000} minutos`}
-              showArrow
-              iconBackgroundClassName="bg-[#573397]"
-              onPress={() => {
-                setVisibleLongPause(true);
-                setModalTitle("Escolha o tempo das pausas longas");
-              }}
-            />
-          </View>
-        </View>
-
-        <View className="mt-6 shadow-2xl">
-          <Text className="text-base font-semibold text-gray-800 px-6 mb-3">Notificações</Text>
-          <View className="bg-white mx-6 rounded-3xl shadow-sm">
+          <Text className="text-base font-semibold text-gray-800 px-6 mb-3 dark:text-white">Notificações</Text>
+          <View className="bg-white mx-6 rounded-3xl shadow-sm dark:bg-neutral-800">
             <SettingRow
               icon={<Bell size={20} color="#fff" />}
               title="Notificações Push"
@@ -178,7 +91,7 @@ export default function SettingsScreen() {
                 />
               }
             />
-            <View className="h-px bg-gray-200 ml-17" />
+            <View className="h-px bg-gray-200 dark:bg-neutral-700 ml-17" />
             <SettingRow
               icon={<Volume2 size={20} color="#fff" />}
               title="Sons"
@@ -193,7 +106,7 @@ export default function SettingsScreen() {
                 />
               }
             />
-            <View className="h-px bg-gray-200 ml-17" />
+            <View className="h-px bg-gray-200 dark:bg-neutral-700 ml-17" />
             <SettingRow
               icon={<Smartphone size={20} color="#fff" />}
               title="Vibração"
@@ -212,8 +125,8 @@ export default function SettingsScreen() {
         </View>
 
         <View className="mt-6 shadow-2xl">
-          <Text className="text-base font-semibold text-gray-800 px-6 mb-3">Aparência</Text>
-          <View className="bg-white mx-6 rounded-3xl shadow-sm">
+          <Text className="text-base font-semibold text-gray-800 px-6 mb-3 dark:text-white">Aparência</Text>
+          <View className="bg-white mx-6 rounded-3xl shadow-sm dark:bg-neutral-800">
             <SettingRow
               icon={<Moon size={20} color="#fff" />}
               title="Modo Escuro"
@@ -221,8 +134,8 @@ export default function SettingsScreen() {
               iconBackgroundClassName="bg-[#3C3A40]"
               rightElement={
                 <Switch
-                  value={settings.darkmode}
-                  onValueChange={settingsStore.enableDarkMode}
+                  value={theme === "dark"}
+                  onValueChange={toggleTheme}
                   trackColor={{ false: '#D1D5DB', true: '#32D74B' }}
                   thumbColor={settings.darkmode ? '#fff' : '#F3F4F6'}
                 />

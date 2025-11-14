@@ -4,8 +4,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const COLORS = {
   barBg: '#F1F2F4',
-  active: '#0F172A',
-  inactive: '#64748B',
+  active: '#c0c0c0',
+  inactive: '#9C9C9C',
 };
 
 export default function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
@@ -19,9 +19,8 @@ export default function FloatingTabBar({ state, descriptors, navigation }: Botto
       style={{ paddingBottom: Math.max(insets.bottom, 12) }}
     >
       <View
-        className="flex-row items-center justify-evenly rounded-2xl px-3 py-2 w-[92%]"
+        className="flex-row items-center justify-evenly rounded-2xl px-3 py-2 w-[92%] bg-white dark:bg-neutral-700"
         style={{
-          backgroundColor: COLORS.barBg,
           shadowColor: '#000',
           shadowOffset: { width: 0, height: 10 },
           shadowOpacity: 0.08,

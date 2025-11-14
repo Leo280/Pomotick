@@ -39,12 +39,6 @@ export default function TabLayout() {
           <Ionicons name={focused ? 'information-circle' : 'information-circle-outline'} size={size} color={color} />
         )
       }} />
-      <Tabs.Screen name="statistic" options={{
-        title: 'Estatísticas',
-        tabBarIcon: ({ focused, color, size }) => (
-          <Ionicons name={focused ? 'thumbs-down' : 'thumbs-down-outline'} size={size} color={color} />
-        )
-      }} />
      
     </Tabs>
   )
