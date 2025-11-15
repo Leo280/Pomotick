@@ -1,6 +1,6 @@
 import { useTask, useUpdateTask } from "@/api/tasks";
 import { useTimerStore } from "@/stores/TimerStore";
-import { mapTaskDBToTask, Task, TaskDB } from "@/types/Task";
+import { mapTaskDBToTask, TaskDB } from "@/types/Task";
 import { useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { ChevronLeft, Edit2, Pause, Play, RotateCcw } from "lucide-react-native";
@@ -262,22 +262,22 @@ export default function StudyScreen() {
   const sessionEnded = completed >= totalPomodoros && sessionType === "pomodoro";
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-100">
+    <SafeAreaView className="flex-1 bg-gray-100 dark:bg-neutral-900">
       <View className="px-5 py-3">
         <TouchableOpacity className="w-10 h-10 justify-center" onPress={() => router.push("/")} activeOpacity={0.7}>
-          <ChevronLeft size={28} color="#1F2937" />
+          <ChevronLeft size={28} color="#9CA3AF" />
         </TouchableOpacity>
       </View>
       <View className="flex-1 px-5">
         {isEditing ? (
-          <TextInput className="text-xl font-semibold text-gray-800 mb-6 p-3 bg-white rounded-lg border-2 border-blue-500"
+          <TextInput className="text-xl font-semibold text-gray-800 mb-6 p-3 bg-white rounded-lg border-2 border-blue-500 dark:bg-neutral-700 dark:text-white"
             value={taskName} onChangeText={setTaskName} onBlur={() => setIsEditing(false)} autoFocus selectTextOnFocus
           />
         ) : (
-          <Text className="text-xl font-semibold text-gray-800 mb-6">{taskName}</Text>
+          <Text className="text-xl font-semibold text-gray-800 mb-6 dark:text-white">{taskName}</Text>
         )}
 
-        <View className="bg-white rounded-3xl p-8 items-center shadow-lg mb-5">
+        <View className="bg-white rounded-3xl p-8 items-center shadow-lg mb-5 dark:bg-neutral-800">
           <View className="relative items-center justify-center">
             <Svg width={radius * 2 + strokeWidth * 2} height={radius * 2 + strokeWidth * 2}>
               <Circle cx={radius + strokeWidth} cy={radius + strokeWidth} r={radius} stroke="#E5E7EB" strokeWidth={strokeWidth} fill="none" />
@@ -307,24 +307,24 @@ export default function StudyScreen() {
 
         <View className="flex-row gap-3 mb-6">
           <TouchableOpacity
-            className={`flex-1 flex-row items-center justify-center py-4 px-5 rounded-2xl gap-2 shadow-sm ${sessionEnded ? "bg-gray-200" : "bg-white"}`}
+            className={`flex-1 flex-row items-center justify-center py-4 px-5 rounded-2xl gap-2 shadow-sm ${sessionEnded ? "bg-gray-200" : "bg-white dark:bg-neutral-700"}`}
             onPress={toggleTimer}
             activeOpacity={sessionEnded ? 1 : 0.7}
             disabled={sessionEnded}
           >
             {timer.isRunning ? <Pause size={20} color={sessionEnded ? "#9CA3AF" : "#6B7280"} /> : <Play size={20} color={sessionEnded ? "#9CA3AF" : "#6B7280"} />}
-            <Text className={`text-base font-medium ${sessionEnded ? "text-gray-400" : "text-gray-600"}`}>
+            <Text className={`text-base font-medium ${sessionEnded ? "text-gray-400" : "text-gray-600 dark:text-white"}`}>
               {timer.isRunning ? "Pausar" : "Iniciar"}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            className={`flex-1 flex-row items-center justify-center py-4 px-5 rounded-2xl gap-2 shadow-sm ${sessionEnded ? "bg-gray-200" : "bg-white"}`}
+            className={`flex-1 flex-row items-center justify-center py-4 px-5 rounded-2xl gap-2 shadow-sm ${sessionEnded ? "bg-gray-200" : "bg-white dark:bg-neutral-700"}`}
             onPress={handleReset}
             activeOpacity={sessionEnded ? 1 : 0.7}
             disabled={sessionEnded}
           >
             <RotateCcw size={20} color={sessionEnded ? "#9CA3AF" : "#6B7280"} />
-            <Text className={`text-base font-medium ${sessionEnded ? "text-gray-400" : "text-gray-600"}`}>Reiniciar</Text>
+            <Text className={`text-base font-medium ${sessionEnded ? "text-gray-400" : "text-gray-600 dark:text-white"}`}>Reiniciar</Text>
           </TouchableOpacity>
         </View>
 

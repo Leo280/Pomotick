@@ -4,16 +4,21 @@ import { router } from 'expo-router';
 import { Clock, Minus, Pause, Plus } from 'lucide-react-native';
 import { useState } from 'react';
 import { Controller, useForm } from "react-hook-form";
+import { TextInput as PaperInput } from 'react-native-paper';
+
 import {
   Image,
   ScrollView,
   TextInput,
   TouchableOpacity,
-  View
+  View, 
+  Platform,
 } from 'react-native';
 import { Text } from "react-native-gesture-handler";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { z } from 'zod';
+
+
 
 const addTaskSchema = z.object({
   title: z.string().nonempty("Coloque um título para a sua tarefa"),
@@ -239,30 +244,46 @@ export default function AddTask() {
                 control={control}
                 name="focusTime"
                 render={({ field: { value, onChange, onBlur } }) => (
-                  <TextInput
-                    className="bg-white rounded-xl p-3 text-center text-lg border border-gray-300 dark:bg-neutral-800 dark:border-neutral-800 dark:text-white"
+                  <PaperInput
+                    className="bg-white rounded-2xl border border-gray-300 p-3 text-center text-lg  dark:bg-neutral-800 dark:border-neutral-800 dark:text-white"
                     keyboardType="numeric"
                     value={String(value)}
                     onBlur={onBlur}
                     onChangeText={onChange}
+                    mode="outlined"
+                    textColor="#6A6A6A"
+                    outlineColor="transparent"
+                    activeOutlineColor="#c2c2c2"
+                    theme={{ 
+                      roundness: 20, 
+                      }}
+                    
                   />
                 )}
               />
               {errors.focusTime && <Text className="text-red-500">{errors.focusTime.message}</Text>}
             </View>
-
+            
             <View className="mb-4">
-              <Text className="text-gray-700 mb-1 dark:text-white">Pausa curta (minutos)</Text>
+              <Text className="text-gray-700 rounded-sm mb-1 dark:text-white">Pausa curta (minutos)</Text>
               <Controller
                 control={control}
                 name="shortBreak"
                 render={({ field: { value, onChange, onBlur } }) => (
-                  <TextInput
-                    className="bg-white rounded-xl p-3 text-center text-lg border border-gray-300 dark:bg-neutral-800 dark:border-neutral-800 dark:text-white"
+                  <PaperInput
+                    className="bg-white  p-3 text-center rounded-2xl text-lg border border-gray-300 dark:bg-neutral-800 dark:border-neutral-800 dark:text-white"
                     keyboardType="numeric"
                     value={String(value)}
                     onBlur={onBlur}
                     onChangeText={onChange}
+                    mode="outlined"
+                    textColor="#6A6A6A"
+                    outlineColor="transparent"
+                    activeOutlineColor="#c2c2c2"
+                    theme={{ 
+                      roundness: 20, 
+                      }}
+                    
                   />
                 )}
               />
@@ -275,18 +296,27 @@ export default function AddTask() {
                 control={control}
                 name="longBreak"
                 render={({ field: { value, onChange, onBlur } }) => (
-                  <TextInput
-                    className="bg-white rounded-xl p-3 text-center text-lg border border-gray-300 dark:bg-neutral-800 dark:border-neutral-800 dark:text-white"
+                  <PaperInput
+                    className="bg-white p-3 text-center rounded-2xl text-lg border border-gray-300 dark:bg-neutral-800 dark:border-neutral-800 dark:text-white"
                     keyboardType="numeric"
                     value={String(value)}
                     onBlur={onBlur}
                     onChangeText={onChange}
+                    mode="outlined"
+                    textColor="#6A6A6A"
+                    outlineColor="transparent"
+                    activeOutlineColor="#c2c2c2"
+                    theme={{ 
+                      roundness: 20, 
+                      }}
+          
+                    
                   />
                 )}
               />
               {errors.longBreak && <Text className="text-red-500">{errors.longBreak.message}</Text>}
             </View>
-
+             
             <View className="bg-white rounded-xl p-4 mt-5 shadow-2xl dark:bg-neutral-800">
               <View className="flex-row items-center mb-2">
                 <Clock size={16} color="#6B7280" />
@@ -301,16 +331,18 @@ export default function AddTask() {
             </View>
           </View>
 
-          <View className="bg-cyan-100 rounded-3xl p-5 border border-cyan-400 mb-24">
+            <View className="bg-cyan-100 rounded-3xl p-5 border border-cyan-400 mb-24">
             <Text className="text-base font-bold text-cyan-600 mb-4">Como funciona o Método Pomodoro?</Text>
             <View className="gap-2">
               <Text className="text-sm text-black leading-5">🍅 25 minutos de trabalho focado</Text>
-              <Text className="text-sm text-black leading-5">⏸ 5 minutos de pausa curta</Text>
-              <Text className="text-sm text-black leading-5">💪 15-30 min de pausa longa a cada 4 pomodoros</Text>
-              <Text className="text-sm text-black leading-5">🔁 Repita o ciclo até completar a tarefa</Text>
+              <Text className="text-sm text-black leading-5">☕ 5 minutos de pausa curta</Text>
+              <Text className="text-sm text-black leading-5">🛋️ 15-30 min de pausa longa a cada 4 pomodoros</Text>
+              <Text className="text-sm text-black leading-5">🔄 Repita o ciclo até completar a tarefa</Text>
             </View>
-          </View>
+          </View>  
+
         </View>
+
       </ScrollView>
 
       <View className="flex-row items-center justify-center bg-white mt-4 mb-20 dark:bg-neutral-900">
