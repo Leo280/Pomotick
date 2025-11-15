@@ -5,7 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { ChevronLeft, Edit2, Pause, Play, RotateCcw } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
-import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Text, TextInput, TouchableOpacity, useColorScheme, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Circle } from "react-native-svg";
 
@@ -19,6 +19,7 @@ export default function StudyScreen() {
   const [taskName, setTaskName] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const colorScheme = useColorScheme()
 
   const { timers, tick, addTimer, start, pause, reset } = useTimerStore();
   const { mutate: updateTask } = useUpdateTask();
@@ -248,6 +249,11 @@ export default function StudyScreen() {
     return { ...t, minutes, seconds };
   };
 
+  const handleEditTask = () => {
+    updateTask({ id, body: { title: taskName } })
+    setIsEditing(false)
+  }
+
   const timer = getCurrentTimer()
   const remainingPomodoros = Math.max(0, totalPomodoros - completed);
   const radius = 120;
@@ -286,7 +292,7 @@ export default function StudyScreen() {
             </Svg>
             <View className="absolute items-center">
               <Text className="text-5xl font-light text-gray-300 tracking-wider">{formatTime(timer)}</Text>
-              <Text className="text-sm text-blue-400 mt-1">
+              <Text className="text-sm text-blue-400 mt-1 dark:text-white">
                 {
                   sessionEnded ? "Sua sessão acabou" :
                     sessionType === "pomodoro"
@@ -328,7 +334,9 @@ export default function StudyScreen() {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity className="flex-row items-center justify-center bg-blue-500 py-3.5 px-6 rounded-xl gap-2" onPress={() => setIsEditing(true)} activeOpacity={0.7}>
+        <TouchableOpacity className="flex-row items-center justify-center bg-blue-700 py-3.5 px-6 rounded-xl gap-2"
+          onPress={() => setIsEditing(true)}
+          activeOpacity={0.7}>
           <Edit2 size={16} color="#FFFFFF" />
           <Text className="text-base font-semibold text-white">Editar Tarefa</Text>
         </TouchableOpacity>

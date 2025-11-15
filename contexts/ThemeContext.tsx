@@ -4,7 +4,7 @@ import { useColorScheme } from "nativewind";
 
 const ThemeContext = createContext({
   theme: "light",
-  toggleTheme: () => {},
+  toggleTheme: () => { },
 });
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
