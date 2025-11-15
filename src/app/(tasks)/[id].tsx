@@ -19,7 +19,6 @@ export default function StudyScreen() {
   const [taskName, setTaskName] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const colorScheme = useColorScheme()
 
   const { timers, tick, addTimer, start, pause, reset } = useTimerStore();
   const { mutate: updateTask } = useUpdateTask();
@@ -277,7 +276,7 @@ export default function StudyScreen() {
       <View className="flex-1 px-5">
         {isEditing ? (
           <TextInput className="text-xl font-semibold text-gray-800 mb-6 p-3 bg-white rounded-lg border-2 border-blue-500 dark:bg-neutral-700 dark:text-white"
-            value={taskName} onChangeText={setTaskName} onBlur={() => setIsEditing(false)} autoFocus selectTextOnFocus
+            value={taskName} onChangeText={setTaskName} onBlur={handleEditTask} autoFocus selectTextOnFocus
           />
         ) : (
           <Text className="text-xl font-semibold text-gray-800 mb-6 dark:text-white">{taskName}</Text>

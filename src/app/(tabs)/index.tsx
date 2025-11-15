@@ -1,26 +1,26 @@
 import { useTaskList } from '@/api/tasks';
 import { Search } from "@/src/components/Search";
 import { TaskCard } from '@/src/components/TaskCard';
-import useTask from '@/stores/TaskStore';
 import { Octicons } from '@expo/vector-icons';
 import { FlashList } from '@shopify/flash-list';
 import { router } from "expo-router";
 import fuzzysort from "fuzzysort";
+import debounce from "lodash.debounce";
 import { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   TouchableOpacity,
+  useColorScheme,
   View
 } from 'react-native';
 import { Text } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
-import debounce from "lodash.debounce"
 
 export default function Tasks() {
-  const { setActiveTask, pauseActiveTask } = useTask()
   const { data: tasks, error, isLoading } = useTaskList()
   const [query, setQuery] = useState("")
   const [debounceQuery, setDebounceQuery] = useState("")
+  const colorScheme = useColorScheme()
 
   const debouncedSetQuery = useMemo(() => debounce(q => setDebounceQuery(q), 200), [])
 
@@ -64,9 +64,9 @@ export default function Tasks() {
           <Octicons
             name={'clock'}
             size={18}
-            color={'#6B7280'}
+            color={colorScheme === 'dark' ? 'white' : '#6B7280'}
           />
-          <Text className="text-gray-800 font-semibold dark:text-gray-400"> Histórico de Tarefas </Text>
+          <Text className="text-gray-800 font-semibold dark:text-gray-400 dark:text-white"> Histórico de Tarefas </Text>
         </TouchableOpacity>
       </View>
       <SafeAreaView className="flex-1 bg-white mt-8 dark:bg-neutral-900">

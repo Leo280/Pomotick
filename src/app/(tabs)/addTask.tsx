@@ -11,8 +11,9 @@ import {
   ScrollView,
   TextInput,
   TouchableOpacity,
-  View, 
+  View,
   Platform,
+  useColorScheme,
 } from 'react-native';
 import { Text } from "react-native-gesture-handler";
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -40,6 +41,8 @@ type AddTaskSchema = z.infer<typeof addTaskSchema>;
 
 export default function AddTask() {
   const { mutate: insertTask } = useInsertTask();
+
+  const colorScheme = useColorScheme()
 
   const [pomodoros, setPomodoros] = useState(4);
   const [selectedButton, setSelectedButton] = useState<number | null>(null);
@@ -173,7 +176,7 @@ export default function AddTask() {
                       className={`w-20 h-20 rounded-2xl justify-center items-center shadow-2xl ${selectedButton === btn.id ? "bg-gray-200 dark:bg-neutral-700" : "bg-white dark:bg-neutral-800"}`}
                       onPress={() => setSelectedButton(selectedButton === btn.id ? null : btn.id)}
                     >
-                      <Text className="font-medium text-xs" style={{ color: btn.color }}>{btn.label}</Text>
+                      <Text style={{ color: colorScheme === 'dark' ? "white" : btn.color }} className="font-medium text-xs dark:text-white" >{btn.label}</Text>
                       <Image source={btn.image} className="w-10 h-10" resizeMode="cover" />
                     </TouchableOpacity>
                   ))}
@@ -199,7 +202,7 @@ export default function AddTask() {
                 {presetOptions.map((preset) => (
                   <TouchableOpacity
                     key={preset}
-                    className={`border rounded-full px-4 py-3 min-w-12 items-center dark:border-neutral-900 ${pomodoros === preset ? 'bg-black border-black dark:bg-white '   : 'bg-white dark:bg-neutral-800'}`}
+                    className={`border rounded-full px-4 py-3 min-w-12 items-center dark:border-neutral-900 ${pomodoros === preset ? 'bg-black border-black dark:bg-white ' : 'bg-white dark:bg-neutral-800'}`}
                     onPress={() => setPomodoros(preset)}
                   >
                     <Text className={`text-sm font-bold ${pomodoros === preset ? 'text-white dark:text-neutral-900 ' : 'text-black dark:text-white'}`}>
@@ -218,9 +221,19 @@ export default function AddTask() {
                   onPress={() => adjustPomodoros(-1)}
                   disabled={pomodoros <= 1}
                 >
-                  <Minus size={20} color={pomodoros <= 1 ? '#14213D' : '#6B7280'} />
+                  <Minus
+                    size={20}
+                    color={
+                      colorScheme === 'dark'
+                        ? pomodoros <= 1
+                          ? '#4B5563'
+                          : 'white'
+                        : pomodoros <= 1
+                          ? '#14213D'
+                          : '#6B7280'
+                    }
+                  />
                 </TouchableOpacity>
-
                 <View className="items-center mx-10">
                   <Text className="text-4xl font-bold text-primary-500 dark:text-white">{pomodoros}</Text>
                   <Text className="text-bold text-black mt-1 dark:text-white">
@@ -233,7 +246,18 @@ export default function AddTask() {
                   onPress={() => adjustPomodoros(1)}
                   disabled={pomodoros >= 12}
                 >
-                  <Plus size={20} color={pomodoros >= 12 ? '#D1D5DB' : '#6B7280'} />
+                  <Plus
+                    size={20}
+                    color={
+                      colorScheme === 'dark'
+                        ? pomodoros >= 12
+                          ? '#4B5563'
+                          : 'white'
+                        : pomodoros >= 12
+                          ? '#14213D'
+                          : '#6B7280'
+                    }
+                  />
                 </TouchableOpacity>
               </View>
             </View>
@@ -245,25 +269,25 @@ export default function AddTask() {
                 name="focusTime"
                 render={({ field: { value, onChange, onBlur } }) => (
                   <PaperInput
-                    className="bg-white rounded-2xl border border-gray-300 p-3 text-center text-lg  dark:bg-neutral-800 dark:border-neutral-800 dark:text-white"
+                    className="bg-white rounded-2xl border border-gray-300 p-3 text-center text-lg dark:bg-neutral-800 dark:border-neutral-800 dark:text-white"
                     keyboardType="numeric"
                     value={String(value)}
                     onBlur={onBlur}
                     onChangeText={onChange}
                     mode="outlined"
-                    textColor="#6A6A6A"
+                    textColor={colorScheme === 'dark' ? "#FFFFFF" : "#6A6A6A"}
                     outlineColor="transparent"
-                    activeOutlineColor="#c2c2c2"
-                    theme={{ 
-                      roundness: 20, 
-                      }}
-                    
+                    activeOutlineColor="white"
+                    theme={{
+                      roundness: 20,
+                    }}
+
                   />
                 )}
               />
               {errors.focusTime && <Text className="text-red-500">{errors.focusTime.message}</Text>}
             </View>
-            
+
             <View className="mb-4">
               <Text className="text-gray-700 rounded-sm mb-1 dark:text-white">Pausa curta (minutos)</Text>
               <Controller
@@ -277,13 +301,13 @@ export default function AddTask() {
                     onBlur={onBlur}
                     onChangeText={onChange}
                     mode="outlined"
-                    textColor="#6A6A6A"
+                    textColor={colorScheme === 'dark' ? "#FFFFFF" : "#6A6A6A"}
                     outlineColor="transparent"
                     activeOutlineColor="#c2c2c2"
-                    theme={{ 
-                      roundness: 20, 
-                      }}
-                    
+                    theme={{
+                      roundness: 20,
+                    }}
+
                   />
                 )}
               />
@@ -303,35 +327,33 @@ export default function AddTask() {
                     onBlur={onBlur}
                     onChangeText={onChange}
                     mode="outlined"
-                    textColor="#6A6A6A"
+                    textColor={colorScheme === 'dark' ? "#FFFFFF" : "#6A6A6A"}
                     outlineColor="transparent"
                     activeOutlineColor="#c2c2c2"
-                    theme={{ 
-                      roundness: 20, 
-                      }}
-          
-                    
+                    theme={{
+                      roundness: 20,
+                    }}
                   />
                 )}
               />
               {errors.longBreak && <Text className="text-red-500">{errors.longBreak.message}</Text>}
             </View>
-             
+
             <View className="bg-white rounded-xl p-4 mt-5 shadow-2xl dark:bg-neutral-800">
               <View className="flex-row items-center mb-2">
-                <Clock size={16} color="#6B7280" />
-                <Text className="text-sm text-gray-500 ml-2 dark:text-gray-300">Tempo total: {totalMinutes} min</Text>
+                <Clock size={16} color={colorScheme === 'dark' ? 'white' : "#6B7280"} />
+                <Text className="text-sm text-gray-500 ml-2 dark:text-white">Tempo total: {totalMinutes} min</Text>
               </View>
               <View className="flex-row items-center">
-                <Pause size={16} color="#6B7280"  />
-                <Text className="text-sm text-gray-500 ml-2 dark:text-gray-300">
+                <Pause size={16} color={colorScheme === 'dark' ? 'white' : "#6B7280"} />
+                <Text className="text-sm text-gray-500 ml-2 dark:text-white">
                   Pausas: {Math.floor(pomodoros / 4)} longas, {pomodoros - Math.floor(pomodoros / 4)} curtas
                 </Text>
               </View>
             </View>
           </View>
 
-            <View className="bg-cyan-100 rounded-3xl p-5 border border-cyan-400 mb-24">
+          <View className="bg-cyan-100 rounded-3xl p-5 border border-cyan-400 mb-24">
             <Text className="text-base font-bold text-cyan-600 mb-4">Como funciona o Método Pomodoro?</Text>
             <View className="gap-2">
               <Text className="text-sm text-black leading-5">🍅 25 minutos de trabalho focado</Text>
@@ -339,7 +361,7 @@ export default function AddTask() {
               <Text className="text-sm text-black leading-5">🛋️ 15-30 min de pausa longa a cada 4 pomodoros</Text>
               <Text className="text-sm text-black leading-5">🔄 Repita o ciclo até completar a tarefa</Text>
             </View>
-          </View>  
+          </View>
 
         </View>
 
@@ -357,7 +379,7 @@ export default function AddTask() {
           </Text>
         </TouchableOpacity>
       </View>
-    </SafeAreaView>
+    </SafeAreaView >
   );
 }
 
