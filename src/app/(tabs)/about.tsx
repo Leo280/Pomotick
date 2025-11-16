@@ -8,19 +8,19 @@ export default function About() {
 
   return (
 
-    <SafeAreaView className="flex-1 ">
+    <SafeAreaView className="flex-1 bg-white dark:bg-neutral-900">
       <Masthead 
         title="Sobre"
         image={require('../../../assets/images/img_masthead.png')}
       >
         <View className="flex-row justify-between items-center">
           <View className="flex-row justify-center">
-            <Text className="text-2xl text-white font-bold">Sobre a Aplicação</Text>
+            <Text className="text-2xl text-white pl-3 font-bold"></Text>
           </View>
         </View>
       </Masthead>
-      <ScrollView className="flex-1 bg-white   rounded-t-2xl ">
-        <Text className="text-2xl text-gray-900 p-4 font-extrabold ">Criadores</Text>
+      <ScrollView className="flex-1 bg-white rounded-t-2xl dark:bg-neutral-900 z-2">
+        <Text className="text-2xl text-gray-900 p-4 font-extrabold dark:text-white ">Criadores</Text>
         <View className="flex-row items-center gap-6 justify-center">
           <Image className="w-20 h-20 rounded-full" source={require('@/assets/images/Jesua-perfil.jpg')} />
           <Image className="w-20 h-20 rounded-full" source={require('@/assets/images/Leonardo-perfil.jpg')} />
@@ -28,8 +28,8 @@ export default function About() {
           <Image className="w-20 h-20 rounded-full" source={require('@/assets/images/Carlos-perfil.jpg')} />
         </View>
         <View className="mt-6">
-          <Text className="text-2xl text-neutral-700 p-4 font-extrabold ">Sobre o projeto</Text>
-          <Text className="text-base text-justify pl-6 pr-6 pb-6 text-netral-800">
+          <Text className="text-2xl text-neutral-700 p-4 font-extrabold dark:text-white ">Sobre o projeto</Text>
+          <Text className="text-base text-justify pl-6 pr-6 pb-6 text-netral-800 dark:text-white">
             Este Projeto apresenta a proposta de desenvolvimento de um aplicativo baseado na metodologia Pomodoro com o objetivo de auxiliar usuários na gestão do tempo e aumento da produtividade. Motivado pelo impacto negativo das distrações digitais no foco e desempenho de estudantes e profissionais, o projeto visa transformar a tecnologia em aliada, proporcionando ciclos de trabalho focados intercalados com pausas, conforme o método criado por Francesco Cirillo.
           </Text>
         </View>

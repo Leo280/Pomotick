@@ -3,16 +3,22 @@ import { Stack } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import '../styles/global.css';
 import { QueryProvider } from "@/providers/QueryProvider";
+import { ThemeProvider, useTheme } from "../../contexts/ThemeContext";
+
 
 
 export default function RootLayout() {
   useFrameworkReady()
 
+ 
+
   return (
+  <ThemeProvider>
     <QueryProvider>
-      <SafeAreaProvider >
-        <Stack screenOptions={{ headerShown: false }} />
-      </SafeAreaProvider >
+         <SafeAreaProvider >
+          <Stack screenOptions={{ headerShown: false }} />
+        </SafeAreaProvider >
     </QueryProvider>
+  </ThemeProvider>
   )
 }

@@ -8,6 +8,7 @@ import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { z } from 'zod';
 import Dropdown from "../components/Dropdown";
+import LoginMasthead from "../components/LoginMasthead";
 
 const signUpFormSchema = z.object({
   nome: z.string()
@@ -31,99 +32,113 @@ const signUpFormSchema = z.object({
   .refine(({ password, confirmPassword }) => password === confirmPassword, {
     message: 'As senhas não coincidem',
     path: ["confirmPassword"],
-  })
+  });
 
-export default function Login() {
+export default function SignUp() {
   const [gender, setGender] = useState<string>("")
-  const { mutate: insertProfile } = useInsertProfile()
+  const { mutateAsync: insertProfile } = useInsertProfile()
   const router = useRouter();
   const { control, handleSubmit, getValues, formState: { errors } } = useForm({ resolver: zodResolver(signUpFormSchema) })
 
   const onSignUp = async () => {
     const { email, password, nome } = getValues()
-    const { data } = await supabase.auth.signUp({ email, password });
-    insertProfile({ id: data.user?.id, email, name: nome, gender })
+    await supabase.auth.signUp({ email, password, options: { emailRedirectTo: "pomotick://login" } });
+    insertProfile({ email, name: nome, gender })
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white ">
-      <View className="flex-1 bg-white">
-        <View className="flex-col items-center gap-2 justify-center mt-12">
-          <Text className="font-bold text-2xl ">Cadastre-se no Pomotick</Text>
+    <SafeAreaView className="flex-1 bg-blue-950">
+      <LoginMasthead title="Sobre"
+        image={require('../../assets/images/tomato.png')}
+      />
+      <View className="flex-1 bg-white justify-between">
+        <View>
+          <View className="flex-col items-center justify-center mt-4">
+            <Text className="font-bold text-2xl">Cadastre-se no Pomotick</Text>
+          </View>
+          <View className="mt-2">
+            <Text className="text-base text-gray-900 p-2 font-extrabold ms-6">Nome</Text>
+            <Controller
+              control={control}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <TextInput
+                  placeholder="Digite seu nome"
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                  className="border border-gray-300 rounded-full p-3 mx-6"
+                />
+              )}
+              name="nome"
+            />
+            {errors.nome && <Text className="text-center text-red-500 font-bold">{errors.nome.message}</Text>}
+
+            <Text className="text-base text-gray-900 p-2 font-extrabold ms-6">Gênero</Text>
+            <Dropdown value={gender} onChange={setGender} />
+
+            <Text className="text-base text-gray-900 p-2 font-extrabold ms-6">E-mail</Text>
+            <Controller
+              control={control}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <TextInput
+                  placeholder="Digite seu e-mail"
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                  className="border border-gray-300 rounded-full p-4 mx-6"
+                />
+              )}
+              name="email"
+            />
+            {errors.email && <Text className="text-center text-red-500 font-bold">{errors.email.message}</Text>}
+
+            <Text className="text-base text-gray-900 p-2 font-extrabold ms-6">Senha</Text>
+            <Controller
+              control={control}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <TextInput
+                  placeholder="Digite sua senha"
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                  secureTextEntry
+                  className="border border-gray-300 rounded-full p-4 mx-6"
+                />
+              )}
+              name="password"
+            />
+            {errors.password && <Text className="text-center text-red-500 font-bold">{errors.password.message}</Text>}
+
+            <Text className="text-base text-gray-900 p-2 font-extrabold ms-6">Confirme sua Senha</Text>
+            <Controller
+              control={control}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <TextInput
+                  placeholder="Digite sua senha"
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                  secureTextEntry
+                  className="border border-gray-300 rounded-full p-4 mx-6"
+                />
+              )}
+              name="confirmPassword"
+            />
+            {errors.confirmPassword && <Text className="text-center text-red-500 font-bold">{errors.confirmPassword.message}</Text>}
+          </View>
         </View>
-        <View className="mt-2">
-          <Text className="text-base text-gray-900 p-2 font-extrabold ms-6">Nome</Text>
-          <Controller
-            control={control}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
-                placeholder="Digite seu nome"
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-                className="border border-gray-300 rounded-full p-4 mx-6"
-              />
-            )}
-            name="nome"
-          />
-          {errors.nome && <Text>{errors.nome.message}</Text>}
-          <Text className="text-base text-gray-900 p-2 font-extrabold ms-6">Gênero</Text>
-          <Dropdown value={gender} onChange={setGender} />
-          <Text className="text-base text-gray-900 p-2 font-extrabold ms-6">E-mail</Text>
-          <Controller
-            control={control}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
-                placeholder="Digite seu e-mail"
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-                className="border border-gray-300 rounded-full p-4 mx-6"
-              />
-            )}
-            name="email"
-          />
-          {errors.email && <Text>{errors.email.message}</Text>}
-          <Text className="text-base text-gray-900 p-2 font-extrabold ms-6">Senha</Text>
-          <Controller
-            control={control}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
-                placeholder="Digite sua senha"
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-                secureTextEntry
-                className="border border-gray-300 rounded-full p-4 mx-6"
-              />
-            )}
-            name="password"
-          />
-          {errors.password && <Text>{errors.password.message}</Text>}
-          <Text className="text-base text-gray-900 p-2 font-extrabold ms-6">Confirme sua Senha</Text>
-          <Controller
-            control={control}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
-                placeholder="Digite sua senha"
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-                secureTextEntry
-                className="border border-gray-300 rounded-full p-4 mx-6"
-              />
-            )}
-            name="confirmPassword"
-          />
-          {errors.confirmPassword && <Text>{errors.confirmPassword.message}</Text>}
-        </View>
-        <View className="flex-row items-center justify-center">
-          <TouchableOpacity onPress={handleSubmit(onSignUp)} className="bg-blue-600 w-64 h-12 flex-row items-center justify-center rounded-full gap-2 mt-8">
+        <View className="flex-col items-center justify-center mb-8">
+          <TouchableOpacity
+            onPress={handleSubmit(onSignUp)}
+            className="bg-blue-600 w-64 h-12 flex-row items-center justify-center rounded-full gap-2 mb-4"
+          >
             <Text className="text-white font-bold text-lg">Criar Conta</Text>
           </TouchableOpacity>
-        </View>
-        <View className="flex-row items-center justify-center">
-          <TouchableOpacity onPress={() => router.navigate("/login")} className="bg-blue-400 w-64 h-12 flex-row items-center justify-center rounded-full gap-2 mt-8">
+
+          <TouchableOpacity
+            onPress={() => router.navigate("/login")}
+            className="bg-blue-400 w-64 h-12 flex-row items-center justify-center rounded-full gap-2"
+          >
             <Text className="text-white font-bold text-lg">Login</Text>
           </TouchableOpacity>
         </View>
@@ -131,3 +146,4 @@ export default function Login() {
     </SafeAreaView>
   )
 }
+
