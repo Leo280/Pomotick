@@ -14,7 +14,6 @@ AppState.addEventListener('change', (state) => {
 
 export default function Index() {
   const { session, loading, loadUser, setSession } = useAuthStore()
-
   useEffect(() => {
     loadUser()
 
@@ -40,5 +39,6 @@ export default function Index() {
   if (!session) {
     return <Redirect href={"/login"} />
   }
+
   return <Redirect href={"/(tabs)"} />
 } 

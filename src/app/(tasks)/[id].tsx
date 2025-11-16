@@ -1,4 +1,5 @@
 import { useTask, useUpdateTask } from "@/api/tasks";
+import useAppSettings from "@/stores/AppSettingsStore";
 import { useTimerStore } from "@/stores/TimerStore";
 import { mapTaskDBToTask, TaskDB } from "@/types/Task";
 import { useQueryClient } from "@tanstack/react-query";

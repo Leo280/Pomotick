@@ -1,11 +1,13 @@
+import { useAssignUserToProfile } from "@/api/profiles";
 import { supabase } from "@/libs/supabase";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
-import { Alert, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import z from "zod";
 import LoginMasthead from "../components/LoginMasthead";
+import { useState } from "react";
 
 const signUpFormSchema = z.object({
   email: z.string()
@@ -18,17 +20,20 @@ const signUpFormSchema = z.object({
 export default function Login() {
   const router = useRouter();
   const { control, handleSubmit, getValues, formState: { errors } } = useForm({ resolver: zodResolver(signUpFormSchema) })
+  const { mutateAsync: assignUserToProfile } = useAssignUserToProfile()
+  const [loginError, setLoginError] = useState(false);
 
   const onSignIn = async () => {
     const { email, password } = getValues();
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
     if (error) {
-      Alert.alert(error.message);
+      setLoginError(true)
       return
     }
+    await assignUserToProfile({ email, userId: data?.user.id });
     router.replace("/(tabs)");
   };
   return (
@@ -58,7 +63,7 @@ export default function Login() {
             )}
             name="email"
           />
-          {errors.email && <Text>{errors.email.message}</Text>}
+          {errors.email && <Text className="text-center text-red-500 font-bold">{errors.email.message}</Text>}
           <Text className="text-base text-gray-900 p-2 font-extrabold ms-6">Senha</Text>
           <Controller
             control={control}
@@ -74,7 +79,7 @@ export default function Login() {
             )}
             name="password"
           />
-          {errors.password && <Text>{errors.password.message}</Text>}
+          {errors.password && <Text className="text-center text-red-500 font-bold">{errors.password.message}</Text>}
           <View className="flex-row items-center justify-center mb-4 ">
             <TouchableOpacity onPress={handleSubmit(onSignIn)} className="bg-blue-600 w-64 h-12 flex-row items-center justify-center rounded-full gap-2 mt-8">
               <Text className="text-white font-bold text-lg">Entrar</Text>
@@ -85,6 +90,7 @@ export default function Login() {
               <Text className="text-white font-bold text-lg">Criar Conta</Text>
             </TouchableOpacity>
           </View>
+          {loginError && <Text className="text-center text-red-500 font-bold mt-4">E-mail ou senha inválidos. Tente novamente.</Text>}
         </View>
       </ScrollView>
     </SafeAreaView>

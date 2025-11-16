@@ -1,4 +1,4 @@
-import { useInsertTask } from "@/api/tasks";
+import { useInsertTask, useTask, useTaskList } from "@/api/tasks";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { router } from 'expo-router';
 import { Clock, Minus, Pause, Plus } from 'lucide-react-native';
@@ -11,15 +11,12 @@ import {
   ScrollView,
   TextInput,
   TouchableOpacity,
-  View,
-  Platform,
   useColorScheme,
+  View
 } from 'react-native';
 import { Text } from "react-native-gesture-handler";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { z } from 'zod';
-
-
 
 const addTaskSchema = z.object({
   title: z.string().nonempty("Coloque um título para a sua tarefa"),
@@ -46,6 +43,8 @@ export default function AddTask() {
 
   const [pomodoros, setPomodoros] = useState(4);
   const [selectedButton, setSelectedButton] = useState<number | null>(null);
+  const [isDuplicate, setIsDuplicate] = useState(false)
+  const { data } = useTaskList()
 
   const { control, handleSubmit, formState: { errors }, watch, reset } = useForm<AddTaskSchema>({
     resolver: zodResolver(addTaskSchema),
@@ -68,15 +67,22 @@ export default function AddTask() {
   const totalMinutes = pomodoros * Number(focusTime);
   const presetOptions = [2, 4, 6, 8];
 
-  const handleCreateTask = async (data: AddTaskSchema) => {
+  const handleCreateTask = async (payload: AddTaskSchema) => {
+    const normalizedNewTitle = payload.title.trim().toLowerCase();
+    const duplicate = data?.some(task => task.title.trim().toLowerCase() === normalizedNewTitle)
+    if (duplicate) {
+      setIsDuplicate(true)
+      return
+    }
     insertTask({
-      title: data.title.trim(),
-      pomodoro_time: data.focusTime,
-      short_break_time: data.shortBreak,
-      long_break_time: data.longBreak,
+      title: payload.title.trim(),
+      pomodoro_time: payload.focusTime,
+      short_break_time: payload.shortBreak,
+      long_break_time: payload.longBreak,
       pomodoros,
     });
 
+    setIsDuplicate(false)
     reset();
     setPomodoros(4);
     router.push("/");
@@ -140,6 +146,7 @@ export default function AddTask() {
 
       <ScrollView showsVerticalScrollIndicator={false}>
         <View className="px-6 pt-6">
+          {isDuplicate && <Text className="text-center text-red-500 font-bold mt-4 mb-4">Já existe uma tarefa com este título</Text>}
           <View className="mb-8">
             <Text className="text-lg font-semibold text-gray-800 dark:text-white">Nome da Tarefa</Text>
             <Controller
@@ -362,9 +369,7 @@ export default function AddTask() {
               <Text className="text-sm text-black leading-5">🔄 Repita o ciclo até completar a tarefa</Text>
             </View>
           </View>
-
         </View>
-
       </ScrollView>
 
       <View className="flex-row items-center justify-center bg-white mt-4 mb-20 dark:bg-neutral-900">
