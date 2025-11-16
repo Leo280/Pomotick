@@ -85,7 +85,7 @@ export default function AddTask() {
     setIsDuplicate(false)
     reset();
     setPomodoros(4);
-    router.push("/");
+    router.replace("/");
   };
 
   const buttons = [
