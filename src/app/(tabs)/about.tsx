@@ -3,11 +3,13 @@ import { Image, ScrollView, TouchableOpacity, View } from "react-native";
 import { Text } from "react-native-gesture-handler";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Masthead from "../../components/Masthead";
+import { Linking } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export default function About() {
 
   return (
-
+<GestureHandlerRootView>
     <SafeAreaView className="flex-1 bg-white dark:bg-neutral-900">
       <Masthead 
         title="Sobre"
@@ -36,13 +38,12 @@ export default function About() {
         <View className="flex-row items-center justify-center mt-2">
           <TouchableOpacity className="bg-blue-950 w-96 h-12 flex-row items-center justify-center rounded-3xl gap-2">
             <Feather name="github" size={20} color={'#fff'} />
-            <Text className="text-white font-bold">Vá para o Repositório do Projeto</Text>
+            <Text className="text-white font-bold" onPress={()=> Linking.openURL('https://github.com/Leo280/Pomotick')}>Vá para o Repositório do Projeto</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
-
     </SafeAreaView>
-
+</GestureHandlerRootView>
   )
 
 }

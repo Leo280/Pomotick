@@ -67,11 +67,11 @@ export default function SettingsScreen() {
   return (
 
     <SafeAreaView className="flex-1 p-4 bg-gray-100 dark:bg-neutral-900">
-      <View className="flex-row justify-between items-center ml-28">
+   
         <View className='flex-row justify-center items-center pt-5'>
           <Text className="text-2xl text-blue-950 pl-3 font-bold dark:text-white">Configurações</Text>
         </View>
-      </View>
+      
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
 
 
