@@ -9,7 +9,16 @@ import { useEffect, useRef, useState } from "react";
 import { Text, TextInput, TouchableOpacity, useColorScheme, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Circle } from "react-native-svg";
+import * as Notifications from 'expo-notifications';
 
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  }),
+});
 
 type SessionType = "pomodoro" | "short_break" | "long_break";
 
@@ -29,6 +38,23 @@ export default function StudyScreen() {
 
   const completed = data?.completed_pomodoros || 0;
   const totalPomodoros = data?.total_pomodoros || 4;
+
+  const triggerSessionNotification = async (sessionType: SessionType) => {
+    let title = "";
+    let body = "";
+
+    title = "Sua pausa acabou!";
+    body = "Vamos voltar ao trabalho!";
+    if (sessionType === "pomodoro") {
+      title = "Pomodoro concluído!";
+      body = "Hora de uma pausa!";
+
+      await Notifications.scheduleNotificationAsync({
+        content: { title, body, data: { sessionType } },
+        trigger: null,
+      });
+    };
+  }
 
   useEffect(() => {
     if (data) {
@@ -128,6 +154,8 @@ export default function StudyScreen() {
 
       if (totalRemaining <= 0) {
         const currentSessionType = timers[id]?.sessionType || "pomodoro";
+
+        triggerSessionNotification(currentSessionType)
 
         if (currentSessionType === "pomodoro") {
           const newCompleted = completed + 1;

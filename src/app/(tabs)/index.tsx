@@ -3,12 +3,15 @@ import { Search } from "@/src/components/Search";
 import { TaskCard } from '@/src/components/TaskCard';
 import { Octicons } from '@expo/vector-icons';
 import { FlashList } from '@shopify/flash-list';
+import * as Device from 'expo-device';
+import * as Notification from 'expo-notifications';
 import { router } from "expo-router";
 import fuzzysort from "fuzzysort";
 import debounce from "lodash.debounce";
 import { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
+  Platform,
   TouchableOpacity,
   useColorScheme,
   View
@@ -16,14 +19,43 @@ import {
 import { Text } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+async function registerForPushNotifications() {
+  let token
+
+  if (Device.isDevice) {
+    const { status: existingStatus } = await Notification.getPermissionsAsync()
+    let finalStatus = existingStatus
+    if (existingStatus !== 'granted') {
+      const { status } = await Notification.requestPermissionsAsync()
+      finalStatus = status
+    }
+
+    token = (await Notification.getExpoPushTokenAsync()).data
+  }
+
+  if (Platform.OS === 'android') {
+    Notification.setNotificationChannelAsync('default', {
+      name: 'default',
+      importance: Notification.AndroidImportance.MAX,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: "#FF231F7C",
+    })
+  }
+
+  return token
+}
+
 export default function Tasks() {
   const { data: tasks, error, isLoading } = useTaskList()
   const [query, setQuery] = useState("")
   const [debounceQuery, setDebounceQuery] = useState("")
   const colorScheme = useColorScheme()
 
-  const debouncedSetQuery = useMemo(() => debounce(q => setDebounceQuery(q), 200), [])
+  useEffect(() => {
+    registerForPushNotifications()
+  }, [])
 
+  const debouncedSetQuery = useMemo(() => debounce(q => setDebounceQuery(q), 200), [])
   useEffect(() => {
     debouncedSetQuery(query.trim())
     return () => debouncedSetQuery.cancel()
