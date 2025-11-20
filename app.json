@@ -13,15 +13,18 @@
       "bundleIdentifier": "com.anonymous.Pomotick"
     },
     "android": {
+      "googleServicesFile": "googleServicesFile.json",
       "adaptiveIcon": {
         "backgroundColor": "#ffffff"
       },
-      "useNextNotificationsApi": true,
       "edgeToEdgeEnabled": true,
-      "package": "com.anonymous.Pomotick",
+      "package": "com.Pomotick",
       "permissions": [
         "android.permission.RECORD_AUDIO",
-        "android.permission.MODIFY_AUDIO_SETTINGS"
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.POST_NOTIFICATIONS",
+        "android.permission.VIBRATE",
+        "android.permission.WAKE_LOCK"
       ]
     },
     "web": {

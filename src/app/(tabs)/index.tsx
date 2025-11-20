@@ -5,10 +5,10 @@ import { Octicons } from '@expo/vector-icons';
 import { FlashList } from '@shopify/flash-list';
 import * as Device from 'expo-device';
 import * as Notification from 'expo-notifications';
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import fuzzysort from "fuzzysort";
 import debounce from "lodash.debounce";
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Platform,
@@ -46,7 +46,7 @@ async function registerForPushNotifications() {
 }
 
 export default function Tasks() {
-  const { data: tasks, error, isLoading } = useTaskList()
+  const { data: tasks, error, isLoading, refetch } = useTaskList()
   const [query, setQuery] = useState("")
   const [debounceQuery, setDebounceQuery] = useState("")
   const colorScheme = useColorScheme()
@@ -54,6 +54,12 @@ export default function Tasks() {
   useEffect(() => {
     registerForPushNotifications()
   }, [])
+
+  useFocusEffect(
+    useCallback(() => {
+      refetch()
+    }, [refetch])
+  )
 
   const debouncedSetQuery = useMemo(() => debounce(q => setDebounceQuery(q), 200), [])
   useEffect(() => {
@@ -111,17 +117,37 @@ export default function Tasks() {
             <Text className="text-white text-sm font-semibold">+ Nova Tarefa</Text>
           </TouchableOpacity>
         </View>
-
-        <FlashList
-          renderItem={({ item }) => {
-            return <TaskCard
-              key={item.id}
-              taskdb={item}
-            />
-          }}
-          data={fuzzyTasks}
-          keyExtractor={(item) => item.id}
-        />
+        {isLoading ? (
+          <View className="flex-1 justify-center items-center">
+            <ActivityIndicator size="large" color="#3B82F6" />
+            <Text className="text-gray-500 mt-4">Carregando tarefas...</Text>
+          </View>
+        ) : fuzzyTasks.length === 0 ? (
+          /* ✅ Estado vazio melhorado */
+          <View className="flex-1 justify-center items-center px-6">
+            <Text className="text-gray-400 text-center text-lg mb-2">
+              {debounceQuery
+                ? 'Nenhuma tarefa encontrada'
+                : 'Nenhuma tarefa criada ainda'}
+            </Text>
+            {!debounceQuery && (
+              <Text className="text-gray-400 text-center">
+                Crie sua primeira tarefa usando o botão acima
+              </Text>
+            )}
+          </View>
+        ) : (
+          <FlashList
+            renderItem={({ item }) => (
+              <TaskCard
+                key={item.id}
+                taskdb={item}
+              />
+            )}
+            data={fuzzyTasks}
+            keyExtractor={(item) => item.id}
+          />
+        )}
       </SafeAreaView>
     </SafeAreaView >
   )

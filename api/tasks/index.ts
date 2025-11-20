@@ -6,10 +6,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 export const useTaskList = () => {
   const { user } = useAuthStore()
   return useQuery({
-    networkMode: "offlineFirst",
     enabled: !!user,
     queryKey: ['tasks', user?.id],
+    staleTime: 0,
     refetchOnMount: true,
+    refetchOnWindowFocus: true,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("tasks")
