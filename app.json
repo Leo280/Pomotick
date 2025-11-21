@@ -13,7 +13,7 @@
       "bundleIdentifier": "com.anonymous.Pomotick"
     },
     "android": {
-      "googleServicesFile": "googleServicesFile.json",
+      "googleServicesFile": "google-services.json",
       "adaptiveIcon": {
         "backgroundColor": "#ffffff"
       },
