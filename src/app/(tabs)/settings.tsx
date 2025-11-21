@@ -137,7 +137,7 @@ export default function SettingsScreen() {
                   value={theme === "dark"}
                   onValueChange={toggleTheme}
                   trackColor={{ false: '#D1D5DB', true: '#32D74B' }}
-                  thumbColor={settings.darkmode ? '#fff' : '#F3F4F6'}
+                  thumbColor={settings.theme === "dark" ? '#fff' : '#F3F4F6'}
                 />
               }
             />
