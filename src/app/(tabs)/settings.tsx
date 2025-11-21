@@ -67,11 +67,11 @@ export default function SettingsScreen() {
   return (
 
     <SafeAreaView className="flex-1 p-4 bg-gray-100 dark:bg-neutral-900">
-   
-        <View className='flex-row justify-center items-center pt-5'>
-          <Text className="text-2xl text-blue-950 pl-3 font-bold dark:text-white">Configurações</Text>
-        </View>
-      
+
+      <View className='flex-row justify-center items-center pt-5'>
+        <Text className="text-2xl text-blue-950 pl-3 font-bold dark:text-white">Configurações</Text>
+      </View>
+
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
 
 
@@ -138,7 +138,7 @@ export default function SettingsScreen() {
                   value={theme === "dark"}
                   onValueChange={toggleTheme}
                   trackColor={{ false: '#D1D5DB', true: '#32D74B' }}
-                  thumbColor={settings.darkmode ? '#fff' : '#F3F4F6'}
+                  thumbColor={settings.theme === "dark" ? '#fff' : '#F3F4F6'}
                 />
               }
             />

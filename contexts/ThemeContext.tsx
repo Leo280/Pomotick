@@ -1,6 +1,7 @@
-import React, { createContext, useState, useContext, useEffect } from "react";
-import { Appearance } from "react-native";
+import useAppSettings from "@/stores/AppSettingsStore";
 import { useColorScheme } from "nativewind";
+import React, { createContext, useContext, useEffect } from "react";
+import { Appearance } from "react-native";
 
 const ThemeContext = createContext({
   theme: "light",
@@ -8,21 +9,25 @@ const ThemeContext = createContext({
 });
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  const { colorScheme, setColorScheme } = useColorScheme();
-  const [theme, setTheme] = useState(colorScheme ?? "light");
+  const { setColorScheme } = useColorScheme();
+  const { settings: { theme }, setTheme } = useAppSettings()
 
   useEffect(() => {
+    if (theme !== "") {
+      setColorScheme(theme)
+      return
+    }
     const listener = Appearance.addChangeListener(({ colorScheme }) => {
-      setTheme(colorScheme ?? "light");
       setColorScheme(colorScheme ?? "light");
+      setTheme(colorScheme ?? "light");
     });
     return () => listener.remove();
   }, []);
 
   const toggleTheme = () => {
     const newTheme = theme === "light" ? "dark" : "light";
-    setTheme(newTheme);
     setColorScheme(newTheme);
+    setTheme(newTheme)
   };
 
   return (
