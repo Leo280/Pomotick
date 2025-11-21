@@ -20,8 +20,6 @@ import { Text } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 async function registerForPushNotifications() {
-  let token
-
   if (Device.isDevice) {
     const { status: existingStatus } = await Notification.getPermissionsAsync()
     let finalStatus = existingStatus
@@ -29,8 +27,6 @@ async function registerForPushNotifications() {
       const { status } = await Notification.requestPermissionsAsync()
       finalStatus = status
     }
-
-    token = (await Notification.getExpoPushTokenAsync()).data
   }
 
   if (Platform.OS === 'android') {
@@ -41,24 +37,21 @@ async function registerForPushNotifications() {
       lightColor: "#FF231F7C",
     })
   }
-
-  return token
 }
 
 export default function Tasks() {
-  const { data: tasks, error, isLoading, refetch } = useTaskList()
+  const { data: tasks, isLoading, refetch, error } = useTaskList()
   const [query, setQuery] = useState("")
   const [debounceQuery, setDebounceQuery] = useState("")
   const colorScheme = useColorScheme()
 
-  useEffect(() => {
-    registerForPushNotifications()
-  }, [])
-
   useFocusEffect(
     useCallback(() => {
-      refetch()
-    }, [refetch])
+      registerForPushNotifications()
+      if (tasks !== undefined || error) {
+        refetch()
+      }
+    }, [refetch, tasks, error])
   )
 
   const debouncedSetQuery = useMemo(() => debounce(q => setDebounceQuery(q), 200), [])
@@ -83,10 +76,6 @@ export default function Tasks() {
       .map(result => result.obj)
   }, [tasks, debounceQuery])
 
-  if (isLoading) return <ActivityIndicator />
-
-  if (error) console.error(error.message)
-
   return (
     <SafeAreaView className="flex-1 p-6 bg-white dark:bg-neutral-900">
       <View className="flex-row justify-between items-center">
@@ -98,13 +87,13 @@ export default function Tasks() {
       <View className="flex-row justify-stretch items-center gap-8 mt-4 mb-4 ml-4">
         <TouchableOpacity
           className="d-flex flex-row items-center p-2 border border-zinc-300 rounded-lg w-42 h-10 dark:bg-neutral-800 dark:border-neutral-800"
-          onPress={() => { router.push("../completedTasks") }}>
+          onPress={() => { router.navigate("../completedTasks") }}>
           <Octicons
             name={'clock'}
             size={18}
             color={colorScheme === 'dark' ? 'white' : '#6B7280'}
           />
-          <Text className="text-gray-800 font-semibold dark:text-gray-400 dark:text-white"> Histórico de Tarefas </Text>
+          <Text className="text-gray-800 font-semibold dark:text-white"> Histórico de Tarefas </Text>
         </TouchableOpacity>
       </View>
       <SafeAreaView className="flex-1 bg-white mt-8 dark:bg-neutral-900">
@@ -123,7 +112,6 @@ export default function Tasks() {
             <Text className="text-gray-500 mt-4">Carregando tarefas...</Text>
           </View>
         ) : fuzzyTasks.length === 0 ? (
-          /* ✅ Estado vazio melhorado */
           <View className="flex-1 justify-center items-center px-6">
             <Text className="text-gray-400 text-center text-lg mb-2">
               {debounceQuery

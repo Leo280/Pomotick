@@ -2,23 +2,34 @@ import { supabase } from "@/libs/supabase"
 import { useAuthStore } from "@/stores/AuthStore"
 import { InsertTask, UpdateTask } from "@/types/Task"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useEffect, useState } from "react"
 
 export const useTaskList = () => {
   const { user } = useAuthStore()
+  const [authUser, setAuthUser] = useState(user)
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      if (!user) {
+        const { data: { user: fetchedUser } } = await supabase.auth.getUser()
+        setAuthUser(fetchedUser)
+      } else {
+        setAuthUser(user)
+      }
+    }
+    fetchUser()
+  }, [user])
+
   return useQuery({
-    enabled: !!user,
-    queryKey: ['tasks', user?.id],
-    staleTime: 0,
-    refetchOnMount: true,
-    refetchOnWindowFocus: true,
+    queryKey: ['tasks', authUser?.id],
+    enabled: !!authUser?.id,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from("tasks")
         .select("*")
-        .eq("user_id", user?.id)
+        .eq("user_id", authUser?.id)
         .eq("is_completed", false)
         .order("created_at", { ascending: false })
-      if (error) throw new Error(error.message)
       return data
     }
   })

@@ -1,8 +1,9 @@
 import { supabase } from "@/libs/supabase";
 import { useAuthStore } from "@/stores/AuthStore";
 import { Redirect } from "expo-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ActivityIndicator, AppState, Image, View } from "react-native";
+import { getAnimationSettingsUpdates } from "react-native-reanimated/lib/typescript/css/native";
 
 AppState.addEventListener('change', (state) => {
   if (state === 'active') {
@@ -13,18 +14,33 @@ AppState.addEventListener('change', (state) => {
 })
 
 export default function Index() {
-  const { session, loading, loadUser, setSession } = useAuthStore()
-  useEffect(() => {
-    loadUser()
+  const { session, loading, setSession, finishLoading } = useAuthStore()
+  const [isInitialized, setIsInitialized] = useState(false)
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
+  useEffect(() => {
+    let mounted = true
+    supabase.auth.getSession().then(({ data }) => {
+      if (mounted) {
+        setSession(data.session ?? null)
+
+        setTimeout(() => {
+          finishLoading()
+          setIsInitialized(true)
+        }, 100)
+      }
     })
 
-    return () => subscription.unsubscribe()
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (mounted) setSession(session)
+    })
+
+    return () => {
+      mounted = false
+      subscription.unsubscribe()
+    }
   }, [])
 
-  if (loading) {
+  if (loading || !isInitialized) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <Image

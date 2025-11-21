@@ -18,14 +18,13 @@ import { useTheme } from "../../../contexts/ThemeContext";
 
 export default function SettingsScreen() {
   const { theme, toggleTheme } = useTheme();
-  const { setSession, setUser } = useAuthStore()
+  const { setSession } = useAuthStore()
   const settingsStore = useAppSettings()
   const settings = settingsStore.settings
   const router = useRouter()
 
   const handleLogout = async () => {
     setSession(null)
-    setUser(null)
     await supabase.auth.signOut()
     router.replace("/login")
   }
@@ -67,11 +66,11 @@ export default function SettingsScreen() {
   return (
 
     <SafeAreaView className="flex-1 p-4 bg-gray-100 dark:bg-neutral-900">
-   
-        <View className='flex-row justify-center items-center pt-5'>
-          <Text className="text-2xl text-blue-950 pl-3 font-bold dark:text-white">Configurações</Text>
-        </View>
-      
+
+      <View className='flex-row justify-center items-center pt-5'>
+        <Text className="text-2xl text-blue-950 pl-3 font-bold dark:text-white">Configurações</Text>
+      </View>
+
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
 
 
