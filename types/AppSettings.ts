@@ -5,5 +5,5 @@ export interface AppSettings {
   pushNotification: boolean
   sounds: boolean
   vibration: boolean
-  darkmode: boolean
+  theme: "light" | "dark" | ""
 }
