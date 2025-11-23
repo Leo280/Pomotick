@@ -1,12 +1,14 @@
 import { useTask, useUpdateTask } from "@/api/tasks";
+import useAppSettings from "@/stores/AppSettingsStore";
 import { useTimerStore } from "@/stores/TimerStore";
 import { mapTaskDBToTask, TaskDB } from "@/types/Task";
 import { useQueryClient } from "@tanstack/react-query";
+import { useAudioPlayer } from "expo-audio";
 import * as Notifications from "expo-notifications";
 import { router, useLocalSearchParams } from "expo-router";
 import { ChevronLeft, Edit2, Pause, Play, RotateCcw } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
-import { AppState, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { AppState, Text, TextInput, TouchableOpacity, Vibration, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Circle } from "react-native-svg";
 
@@ -25,6 +27,8 @@ type SessionType = "pomodoro" | "short_break" | "long_break";
 export default function StudyScreen() {
   const { id: idString } = useLocalSearchParams();
   const id = Array.isArray(idString) ? idString[0] : idString;
+
+  const { settings: { pushNotification, vibration, sounds } } = useAppSettings()
 
   const { data, isLoading, error } = useTask(id as string);
   const [taskName, setTaskName] = useState("");
@@ -72,7 +76,8 @@ export default function StudyScreen() {
           taskId: id,
           timestamp: Date.now(),
         },
-        sound: true,
+        vibrate: vibration ? [0, 400, 150, 400] : undefined,
+        sound: sounds ? "default" : undefined,
         badge: 1,
       },
       trigger:
@@ -135,7 +140,7 @@ export default function StudyScreen() {
 
     const currentType = timers[id]?.sessionType || "pomodoro";
 
-    triggerSessionNotification(currentType, 0);
+    if (pushNotification) triggerSessionNotification(currentType, 0);
 
     if (currentType === "pomodoro") {
       const newCompleted = completed + 1;
@@ -218,8 +223,8 @@ export default function StudyScreen() {
   const handleStart = () => {
     if (sessionEnded) return;
 
-    const cur = getCurrentTimer();
-    const remainingSeconds = cur.minutes * 60 + cur.seconds;
+    const curr = getCurrentTimer();
+    const remainingSeconds = curr.minutes * 60 + curr.seconds;
 
     start(id);
     tick(id);
@@ -232,7 +237,7 @@ export default function StudyScreen() {
       },
     });
 
-    triggerSessionNotification(sessionType, remainingSeconds);
+    if (pushNotification) triggerSessionNotification(sessionType, remainingSeconds);
   };
 
   const handlePause = async () => {
@@ -246,7 +251,7 @@ export default function StudyScreen() {
       },
     });
 
-    await cancelPendingNotifications();
+    if (pushNotification) await cancelPendingNotifications();
   };
 
   const handleReset = async () => {
@@ -272,7 +277,7 @@ export default function StudyScreen() {
       },
     });
 
-    await cancelPendingNotifications();
+    if (pushNotification) await cancelPendingNotifications();
   };
 
   const toggleTimer = () => {
