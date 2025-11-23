@@ -73,7 +73,7 @@ export default function Login() {
                 outlineColor="#c2c2c2"
                 activeOutlineColor="#c2c2c2"
                 theme={{
-                      roundness: 30,
+                      roundness: 25,
                       
                     }}
               />
@@ -100,7 +100,7 @@ export default function Login() {
                 outlineColor="#c2c2c2"
                 activeOutlineColor="#c2c2c2"
                 theme={{
-                      roundness: 30,
+                      roundness: 25,
                     }}
                 right={
                 shouldShowIcon ? (
