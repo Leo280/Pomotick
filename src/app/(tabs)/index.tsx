@@ -3,10 +3,10 @@ import { Search } from "@/src/components/Search";
 import { TaskCard } from '@/src/components/TaskCard';
 import { Octicons } from '@expo/vector-icons';
 import { FlashList } from '@shopify/flash-list';
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import fuzzysort from "fuzzysort";
 import debounce from "lodash.debounce";
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   TouchableOpacity,
@@ -17,10 +17,16 @@ import { Text } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Tasks() {
-  const { data: tasks, error, isLoading } = useTaskList()
+  const { data: tasks, isLoading, refetch, error } = useTaskList()
   const [query, setQuery] = useState("")
   const [debounceQuery, setDebounceQuery] = useState("")
   const colorScheme = useColorScheme()
+
+  useFocusEffect(
+    useCallback(() => {
+      refetch()
+    }, [refetch])
+  )
 
   const debouncedSetQuery = useMemo(() => debounce(q => setDebounceQuery(q), 200), [])
 
@@ -66,30 +72,48 @@ export default function Tasks() {
             size={18}
             color={colorScheme === 'dark' ? 'white' : '#6B7280'}
           />
-          <Text className="text-gray-800 font-semibold dark:text-gray-400 dark:text-white"> Histórico de Tarefas </Text>
+          <Text className="text-gray-800 font-semibold dark:text-white"> Histórico de Tarefas </Text>
         </TouchableOpacity>
       </View>
       <SafeAreaView className="flex-1 bg-white mt-8 dark:bg-neutral-900">
         <View className="flex-row justify-between items-center px-6 mb-4">
           <Text className="text-xl font-semibold text-blue-950 dark:text-gray-300">Suas Tarefas</Text>
           <TouchableOpacity
-            className="bg-blue-500 px-4 py-2 rounded-full"
             onPress={() => router.push('/addTask')}
-          >
-            <Text className="text-white text-sm font-semibold">+ Nova Tarefa</Text>
+            className="w-6 h-6 justify-center items-center rounded-full">
+            <Text className="text-white text-xl font-bold">+</Text>
           </TouchableOpacity>
         </View>
-
-        <FlashList
-          renderItem={({ item }) => {
-            return <TaskCard
-              key={item.id}
-              taskdb={item}
-            />
-          }}
-          data={fuzzyTasks}
-          keyExtractor={(item) => item.id}
-        />
+        {isLoading ? (
+          <View className="flex-1 justify-center items-center">
+            <ActivityIndicator size="large" color="#3B82F6" />
+            <Text className="text-gray-500 mt-4">Carregando tarefas...</Text>
+          </View>
+        ) : fuzzyTasks.length === 0 ? (
+          <View className="flex-1 justify-center items-center px-6">
+            <Text className="text-gray-400 text-center text-lg mb-2">
+              {debounceQuery
+                ? 'Nenhuma tarefa encontrada'
+                : 'Nenhuma tarefa criada ainda'}
+            </Text>
+            {!debounceQuery && (
+              <Text className="text-gray-400 text-center">
+                Crie sua primeira tarefa usando o botão acima
+              </Text>
+            )}
+          </View>
+        ) : (
+          <FlashList
+            renderItem={({ item }) => (
+              <TaskCard
+                key={item.id}
+                taskdb={item}
+              />
+            )}
+            data={fuzzyTasks}
+            keyExtractor={(item) => item.id}
+          />
+        )}
       </SafeAreaView>
     </SafeAreaView >
   )

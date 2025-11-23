@@ -2,22 +2,34 @@ import { supabase } from "@/libs/supabase"
 import { useAuthStore } from "@/stores/AuthStore"
 import { InsertTask, UpdateTask } from "@/types/Task"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useEffect, useState } from "react"
 
 export const useTaskList = () => {
   const { user } = useAuthStore()
+  const [authUser, setAuthUser] = useState(user)
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      if (!user || user === null) {
+        const { data: { user: fetchedUser } } = await supabase.auth.getUser()
+        setAuthUser(fetchedUser)
+      } else {
+        setAuthUser(user)
+      }
+    }
+    fetchUser()
+  }, [user])
+
   return useQuery({
-    networkMode: "offlineFirst",
-    enabled: !!user,
-    queryKey: ['tasks', user?.id],
-    refetchOnMount: true,
+    queryKey: ['tasks', authUser?.id],
+    enabled: !!authUser?.id,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from("tasks")
         .select("*")
-        .eq("user_id", user?.id)
+        .eq("user_id", authUser?.id)
         .eq("is_completed", false)
         .order("created_at", { ascending: false })
-      if (error) throw new Error(error.message)
       return data
     }
   })
@@ -63,8 +75,9 @@ export const useInsertTask = () => {
       }
       return newTask
     },
-    async onSuccess() {
-      await queryClient.invalidateQueries({ queryKey: ["tasks", user?.id] })
+    onSuccess() {
+      queryClient.invalidateQueries({ queryKey: ["tasks", user?.id] })
+      queryClient.refetchQueries({ queryKey: ["tasks", user?.id] });
     }
   })
 }
@@ -83,8 +96,9 @@ export const useUpdateTask = () => {
         .eq("id", id)
       if (error) throw new Error(error.message)
     },
-    async onSuccess() {
-      await queryClient.invalidateQueries({ queryKey: ["tasks"] })
+    onSuccess() {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] })
+      queryClient.refetchQueries({ queryKey: ["tasks"] })
     }
   })
 }
@@ -100,8 +114,9 @@ export const useDeleteTask = () => {
         .eq("id", id)
       if (error) throw new Error(error.message)
     },
-    async onSuccess() {
-      await queryClient.invalidateQueries({ queryKey: ["tasks"] })
+    onSuccess() {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] })
+      queryClient.refetchQueries({ queryKey: ["tasks"] })
     }
   })
 }

@@ -74,7 +74,7 @@ export default function Login() {
                 onChangeText={onChange}
                 value={value}
                 secureTextEntry
-                className="border border-gray-300 rounded-full p-4 mx-6"
+                className="border border-gray-300 rounded-full p-4 mx-6 text-black"
               />
             )}
             name="password"

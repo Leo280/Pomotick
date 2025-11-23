@@ -1,4 +1,4 @@
-import { useInsertTask, useTask, useTaskList } from "@/api/tasks";
+import { useInsertTask, useTaskList } from "@/api/tasks";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { router } from 'expo-router';
 import { Clock, Minus, Pause, Plus } from 'lucide-react-native';
