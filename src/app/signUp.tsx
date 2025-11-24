@@ -40,10 +40,12 @@ export default function SignUp() {
   const { mutateAsync: insertProfile } = useInsertProfile()
   const router = useRouter();
   const { control, handleSubmit, getValues, formState: { errors } } = useForm({ resolver: zodResolver(signUpFormSchema) })
+  const [emailSent, setEmailSent] = useState(false);
 
   const onSignUp = async () => {
     const { email, password, nome } = getValues()
     await supabase.auth.signUp({ email, password, options: { emailRedirectTo: "pomotick://login" } });
+    setEmailSent(true)
     insertProfile({ email, name: nome, gender })
   }
 
@@ -145,7 +147,9 @@ export default function SignUp() {
           </TouchableOpacity>
           </View>
         </View>
-  </SafeAreaView>
+        {emailSent && <Text className="text-center text-green-500 font-bold mt-4">Um e-mail de verificação foi enviado. Por favor, verifique sua caixa de entrada.</Text>}
+      </View>
+    </SafeAreaView>
   )
 }
 

@@ -1,24 +1,26 @@
 import { useFrameworkReady } from "@/hooks/UseFrameworkReady";
-import { Stack } from "expo-router";
-import { SafeAreaProvider } from "react-native-safe-area-context";
-import '../styles/global.css';
 import { QueryProvider } from "@/providers/QueryProvider";
-import { ThemeProvider, useTheme } from "../../contexts/ThemeContext";
+import { Stack } from "expo-router";
+import { LogBox } from "react-native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { ThemeProvider } from "../../contexts/ThemeContext";
+import '../styles/global.css';
 
 
 
 export default function RootLayout() {
   useFrameworkReady()
-
- 
+  if (__DEV__) {
+    LogBox.ignoreAllLogs();
+  }
 
   return (
-  <ThemeProvider>
-    <QueryProvider>
-         <SafeAreaProvider >
+    <ThemeProvider>
+      <QueryProvider>
+        <SafeAreaProvider >
           <Stack screenOptions={{ headerShown: false }} />
         </SafeAreaProvider >
-    </QueryProvider>
-  </ThemeProvider>
+      </QueryProvider>
+    </ThemeProvider>
   )
 }
