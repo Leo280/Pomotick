@@ -8,6 +8,7 @@ type TimerState = {
   lastUpdated: number;
   isRunning: boolean;
   sessionType: "pomodoro" | "short_break" | "long_break";
+  notified: boolean;
 };
 
 type TimerStore = {
@@ -42,7 +43,7 @@ export const useTimerStore = create<TimerStore>()(
         set((state) => ({
           timers: {
             ...state.timers,
-            [taskId]: initial || { minutes: 25, seconds: 0, lastUpdated: Date.now(), isRunning: false, sessionType: "pomodoro" },
+            [taskId]: initial || { minutes: 25, seconds: 0, lastUpdated: Date.now(), isRunning: false, sessionType: "pomodoro", notified: false },
           },
         })),
 
@@ -50,7 +51,7 @@ export const useTimerStore = create<TimerStore>()(
         set((state) => ({
           timers: {
             ...state.timers,
-            [taskId]: { ...state.timers[taskId], isRunning: true, lastUpdated: Date.now() },
+            [taskId]: { ...state.timers[taskId], isRunning: true, lastUpdated: Date.now(), notified: false },
           },
         })),
 
@@ -58,7 +59,7 @@ export const useTimerStore = create<TimerStore>()(
         set((state) => ({
           timers: {
             ...state.timers,
-            [taskId]: { ...state.timers[taskId], isRunning: false },
+            [taskId]: { ...state.timers[taskId], isRunning: false, notified: false },
           },
         })),
 
@@ -83,7 +84,7 @@ export const useTimerStore = create<TimerStore>()(
           timers: {
             ...state.timers,
             [taskId]: initial || {
-              minutes: 25, seconds: 0, lastUpdated: Date.now(), isRunning: false, sessionType: "pomodoro"
+              minutes: 25, seconds: 0, lastUpdated: Date.now(), isRunning: false, sessionType: "pomodoro", notified: false
             }
           },
         })),

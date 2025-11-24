@@ -18,14 +18,13 @@ import { useTheme } from "../../../contexts/ThemeContext";
 
 export default function SettingsScreen() {
   const { theme, toggleTheme } = useTheme();
-  const { setSession, setUser } = useAuthStore()
+  const { setSession } = useAuthStore()
   const settingsStore = useAppSettings()
   const settings = settingsStore.settings
   const router = useRouter()
 
   const handleLogout = async () => {
     setSession(null)
-    setUser(null)
     await supabase.auth.signOut()
     router.replace("/login")
   }

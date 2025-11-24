@@ -3,12 +3,15 @@ import { Search } from "@/src/components/Search";
 import { TaskCard } from '@/src/components/TaskCard';
 import { Octicons } from '@expo/vector-icons';
 import { FlashList } from '@shopify/flash-list';
-import { router } from "expo-router";
+import * as Device from 'expo-device';
+import * as Notification from 'expo-notifications';
+import { router, useFocusEffect } from "expo-router";
 import fuzzysort from "fuzzysort";
 import debounce from "lodash.debounce";
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
+  Platform,
   TouchableOpacity,
   useColorScheme,
   View
@@ -16,14 +19,42 @@ import {
 import { Text } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+async function registerForPushNotifications() {
+  if (Device.isDevice) {
+    const { status: existingStatus } = await Notification.getPermissionsAsync()
+    let finalStatus = existingStatus
+    if (existingStatus !== 'granted') {
+      const { status } = await Notification.requestPermissionsAsync()
+      finalStatus = status
+    }
+  }
+
+  if (Platform.OS === 'android') {
+    Notification.setNotificationChannelAsync('default', {
+      name: 'default',
+      importance: Notification.AndroidImportance.MAX,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: "#FF231F7C",
+    })
+  }
+}
+
 export default function Tasks() {
-  const { data: tasks, error, isLoading } = useTaskList()
+  const { data: tasks, isLoading, refetch, error } = useTaskList()
   const [query, setQuery] = useState("")
   const [debounceQuery, setDebounceQuery] = useState("")
   const colorScheme = useColorScheme()
 
-  const debouncedSetQuery = useMemo(() => debounce(q => setDebounceQuery(q), 200), [])
+  useFocusEffect(
+    useCallback(() => {
+      registerForPushNotifications()
+      if (tasks !== undefined || error) {
+        refetch()
+      }
+    }, [refetch, tasks, error])
+  )
 
+  const debouncedSetQuery = useMemo(() => debounce(q => setDebounceQuery(q), 200), [])
   useEffect(() => {
     debouncedSetQuery(query.trim())
     return () => debouncedSetQuery.cancel()
@@ -45,10 +76,6 @@ export default function Tasks() {
       .map(result => result.obj)
   }, [tasks, debounceQuery])
 
-  if (isLoading) return <ActivityIndicator />
-
-  if (error) console.error(error.message)
-
   return (
     <SafeAreaView className="flex-1 p-6 bg-white dark:bg-neutral-900">
       <View className="flex-row justify-between items-center">
@@ -60,13 +87,13 @@ export default function Tasks() {
       <View className="flex-row justify-stretch items-center gap-8 mt-4 mb-4 ml-4">
         <TouchableOpacity
           className="d-flex flex-row items-center p-2 border border-zinc-300 rounded-lg w-42 h-10 dark:bg-neutral-800 dark:border-neutral-800"
-          onPress={() => { router.push("../completedTasks") }}>
+          onPress={() => { router.navigate("../completedTasks") }}>
           <Octicons
             name={'clock'}
             size={18}
             color={colorScheme === 'dark' ? 'white' : '#6B7280'}
           />
-          <Text className="text-gray-800 font-semibold dark:text-gray-400 dark:text-white"> Histórico de Tarefas </Text>
+          <Text className="text-gray-800 font-semibold dark:text-white"> Histórico de Tarefas </Text>
         </TouchableOpacity>
       </View>
       <SafeAreaView className="flex-1 bg-white mt-8 dark:bg-neutral-900">
@@ -79,17 +106,36 @@ export default function Tasks() {
             <Text className="text-white text-sm font-semibold">+ Nova Tarefa</Text>
           </TouchableOpacity>
         </View>
-
-        <FlashList
-          renderItem={({ item }) => {
-            return <TaskCard
-              key={item.id}
-              taskdb={item}
-            />
-          }}
-          data={fuzzyTasks}
-          keyExtractor={(item) => item.id}
-        />
+        {isLoading ? (
+          <View className="flex-1 justify-center items-center">
+            <ActivityIndicator size="large" color="#3B82F6" />
+            <Text className="text-gray-500 mt-4">Carregando tarefas...</Text>
+          </View>
+        ) : fuzzyTasks.length === 0 ? (
+          <View className="flex-1 justify-center items-center px-6">
+            <Text className="text-gray-400 text-center text-lg mb-2">
+              {debounceQuery
+                ? 'Nenhuma tarefa encontrada'
+                : 'Nenhuma tarefa criada ainda'}
+            </Text>
+            {!debounceQuery && (
+              <Text className="text-gray-400 text-center">
+                Crie sua primeira tarefa usando o botão acima
+              </Text>
+            )}
+          </View>
+        ) : (
+          <FlashList
+            renderItem={({ item }) => (
+              <TaskCard
+                key={item.id}
+                taskdb={item}
+              />
+            )}
+            data={fuzzyTasks}
+            keyExtractor={(item) => item.id}
+          />
+        )}
       </SafeAreaView>
     </SafeAreaView >
   )
