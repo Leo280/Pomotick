@@ -10,7 +10,7 @@ export const useTaskList = () => {
 
   useEffect(() => {
     const fetchUser = async () => {
-      if (!user || user === null) {
+      if (!user) {
         const { data: { user: fetchedUser } } = await supabase.auth.getUser()
         setAuthUser(fetchedUser)
       } else {

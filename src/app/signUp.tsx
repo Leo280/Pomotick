@@ -10,6 +10,7 @@ import { z } from 'zod';
 import Dropdown from "../components/Dropdown";
 import LoginMasthead from "../components/LoginMasthead";
 
+
 const signUpFormSchema = z.object({
   nome: z.string()
     .nonempty('O nome é obrigatório'),
@@ -39,10 +40,12 @@ export default function SignUp() {
   const { mutateAsync: insertProfile } = useInsertProfile()
   const router = useRouter();
   const { control, handleSubmit, getValues, formState: { errors } } = useForm({ resolver: zodResolver(signUpFormSchema) })
+  const [emailSent, setEmailSent] = useState(false);
 
   const onSignUp = async () => {
     const { email, password, nome } = getValues()
     await supabase.auth.signUp({ email, password, options: { emailRedirectTo: "pomotick://login" } });
+    setEmailSent(true)
     insertProfile({ email, name: nome, gender })
   }
 
@@ -51,7 +54,8 @@ export default function SignUp() {
       <LoginMasthead title="Sobre"
         image={require('../../assets/images/tomato.png')}
       />
-      <View className="flex-1 bg-white justify-between">
+      
+      <View className="flex-1 bg-white justify-between rounded-t-3xl">
         <View>
           <View className="flex-col items-center justify-center mt-4">
             <Text className="font-bold text-2xl">Cadastre-se no Pomotick</Text>
@@ -130,18 +134,20 @@ export default function SignUp() {
         <View className="flex-col items-center justify-center mb-8">
           <TouchableOpacity
             onPress={handleSubmit(onSignUp)}
-            className="bg-blue-600 w-64 h-12 flex-row items-center justify-center rounded-full gap-2 mb-4"
+            className="bg-blue-600 w-96 h-14 flex-row items-center justify-center rounded-full gap-2 mb-4"
           >
             <Text className="text-white font-bold text-lg">Criar Conta</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={() => router.navigate("/login")}
-            className="bg-blue-400 w-64 h-12 flex-row items-center justify-center rounded-full gap-2"
+            className="border border-blue-400 w-96 h-14 flex-row items-center justify-center rounded-full gap-2"
           >
-            <Text className="text-white font-bold text-lg">Login</Text>
+            <Text className="text-blue-400 font-bold text-lg">Login</Text>
           </TouchableOpacity>
+          </View>
         </View>
+        {emailSent && <Text className="text-center text-green-500 font-bold mt-4">Um e-mail de verificação foi enviado. Por favor, verifique sua caixa de entrada.</Text>}
       </View>
     </SafeAreaView>
   )

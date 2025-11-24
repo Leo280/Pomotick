@@ -3,18 +3,41 @@ import { Search } from "@/src/components/Search";
 import { TaskCard } from '@/src/components/TaskCard';
 import { Octicons } from '@expo/vector-icons';
 import { FlashList } from '@shopify/flash-list';
+import * as Device from 'expo-device';
+import * as Notification from 'expo-notifications';
 import { router, useFocusEffect } from "expo-router";
 import fuzzysort from "fuzzysort";
 import debounce from "lodash.debounce";
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
+  Platform,
   TouchableOpacity,
   useColorScheme,
   View
 } from 'react-native';
 import { Text } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+async function registerForPushNotifications() {
+  if (Device.isDevice) {
+    const { status: existingStatus } = await Notification.getPermissionsAsync()
+    let finalStatus = existingStatus
+    if (existingStatus !== 'granted') {
+      const { status } = await Notification.requestPermissionsAsync()
+      finalStatus = status
+    }
+  }
+
+  if (Platform.OS === 'android') {
+    Notification.setNotificationChannelAsync('default', {
+      name: 'default',
+      importance: Notification.AndroidImportance.MAX,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: "#FF231F7C",
+    })
+  }
+}
 
 export default function Tasks() {
   const { data: tasks, isLoading, refetch, error } = useTaskList()
@@ -24,12 +47,14 @@ export default function Tasks() {
 
   useFocusEffect(
     useCallback(() => {
-      refetch()
-    }, [refetch])
+      registerForPushNotifications()
+      if (tasks !== undefined || error) {
+        refetch()
+      }
+    }, [refetch, tasks, error])
   )
 
   const debouncedSetQuery = useMemo(() => debounce(q => setDebounceQuery(q), 200), [])
-
   useEffect(() => {
     debouncedSetQuery(query.trim())
     return () => debouncedSetQuery.cancel()
@@ -51,10 +76,6 @@ export default function Tasks() {
       .map(result => result.obj)
   }, [tasks, debounceQuery])
 
-  if (isLoading) return <ActivityIndicator />
-
-  if (error) console.error(error.message)
-
   return (
     <SafeAreaView className="flex-1 p-6 bg-white dark:bg-neutral-900">
       <View className="flex-row justify-between items-center">
@@ -66,7 +87,7 @@ export default function Tasks() {
       <View className="flex-row justify-stretch items-center gap-8 mt-4 mb-4 ml-4">
         <TouchableOpacity
           className="d-flex flex-row items-center p-2 border border-zinc-300 rounded-lg w-42 h-10 dark:bg-neutral-800 dark:border-neutral-800"
-          onPress={() => { router.push("../completedTasks") }}>
+          onPress={() => { router.navigate("../completedTasks") }}>
           <Octicons
             name={'clock'}
             size={18}

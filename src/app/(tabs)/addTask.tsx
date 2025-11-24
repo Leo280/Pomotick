@@ -264,6 +264,7 @@ export default function AddTask() {
                           ? '#14213D'
                           : '#6B7280'
                     }
+                    
                   />
                 </TouchableOpacity>
               </View>
@@ -284,7 +285,7 @@ export default function AddTask() {
                     mode="outlined"
                     textColor={colorScheme === 'dark' ? "#FFFFFF" : "#6A6A6A"}
                     outlineColor="transparent"
-                    activeOutlineColor="white"
+                    activeOutlineColor="#c2c2c2"
                     theme={{
                       roundness: 20,
                     }}

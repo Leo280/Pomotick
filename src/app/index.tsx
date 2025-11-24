@@ -3,6 +3,7 @@ import { useAuthStore } from "@/stores/AuthStore";
 import { Redirect } from "expo-router";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, AppState, Image, View } from "react-native";
+import { getAnimationSettingsUpdates } from "react-native-reanimated/lib/typescript/css/native";
 
 AppState.addEventListener('change', (state) => {
   if (state === 'active') {
