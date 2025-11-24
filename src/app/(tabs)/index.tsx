@@ -40,7 +40,7 @@ async function registerForPushNotifications() {
 }
 
 export default function Tasks() {
-  const { data: tasks, isLoading, refetch, error } = useTaskList()
+  const { data: tasks, isLoading, refetch } = useTaskList()
   const [query, setQuery] = useState("")
   const [debounceQuery, setDebounceQuery] = useState("")
   const colorScheme = useColorScheme()
@@ -48,10 +48,8 @@ export default function Tasks() {
   useFocusEffect(
     useCallback(() => {
       registerForPushNotifications()
-      if (tasks !== undefined || error) {
-        refetch()
-      }
-    }, [refetch, tasks, error])
+      refetch()
+    }, [])
   )
 
   const debouncedSetQuery = useMemo(() => debounce(q => setDebounceQuery(q), 200), [])
