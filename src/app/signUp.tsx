@@ -54,7 +54,7 @@ export default function SignUp() {
       <LoginMasthead title="Sobre"
         image={require('../../assets/images/tomato.png')}
       />
-      
+
       <View className="flex-1 bg-white justify-between rounded-t-3xl">
         <View>
           <View className="flex-col items-center justify-center mt-4">
@@ -145,10 +145,9 @@ export default function SignUp() {
           >
             <Text className="text-blue-400 font-bold text-lg">Login</Text>
           </TouchableOpacity>
-          </View>
         </View>
-        {emailSent && <Text className="text-center text-green-500 font-bold mt-4">Um e-mail de verificação foi enviado. Por favor, verifique sua caixa de entrada.</Text>}
       </View>
+      {emailSent && <Text className="text-center text-green-500 font-bold mt-4">Um e-mail de verificação foi enviado. Por favor, verifique sua caixa de entrada.</Text>}
     </SafeAreaView>
   )
 }

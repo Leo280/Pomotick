@@ -75,8 +75,9 @@ export const useInsertTask = () => {
       }
       return newTask
     },
-    async onSuccess() {
-      await queryClient.invalidateQueries({ queryKey: ["tasks", user?.id] })
+    onSuccess() {
+      queryClient.invalidateQueries({ queryKey: ["tasks", user?.id] })
+      queryClient.refetchQueries({ queryKey: ["tasks", user?.id] });
     }
   })
 }
@@ -95,8 +96,9 @@ export const useUpdateTask = () => {
         .eq("id", id)
       if (error) throw new Error(error.message)
     },
-    async onSuccess() {
-      await queryClient.invalidateQueries({ queryKey: ["tasks"] })
+    onSuccess() {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] })
+      queryClient.refetchQueries({ queryKey: ["tasks"] })
     }
   })
 }
@@ -112,8 +114,9 @@ export const useDeleteTask = () => {
         .eq("id", id)
       if (error) throw new Error(error.message)
     },
-    async onSuccess() {
-      await queryClient.invalidateQueries({ queryKey: ["tasks"] })
+    onSuccess() {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] })
+      queryClient.refetchQueries({ queryKey: ["tasks"] })
     }
   })
 }

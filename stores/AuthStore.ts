@@ -1,4 +1,3 @@
-import { supabase } from "@/libs/supabase";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Session } from "@supabase/supabase-js";
 import { create } from "zustand";
@@ -33,9 +32,9 @@ export const useAuthStore = create<AuthStore>()(
       name: "auth-storage",
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({
+        session: state.session,
         user: state.user,
       }),
     }
   )
 );
-

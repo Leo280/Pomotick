@@ -40,7 +40,7 @@ async function registerForPushNotifications() {
 }
 
 export default function Tasks() {
-  const { data: tasks, isLoading, refetch, error } = useTaskList()
+  const { data: tasks, isLoading, refetch } = useTaskList()
   const [query, setQuery] = useState("")
   const [debounceQuery, setDebounceQuery] = useState("")
   const colorScheme = useColorScheme()
@@ -48,10 +48,8 @@ export default function Tasks() {
   useFocusEffect(
     useCallback(() => {
       registerForPushNotifications()
-      if (tasks !== undefined || error) {
-        refetch()
-      }
-    }, [refetch, tasks, error])
+      refetch()
+    }, [])
   )
 
   const debouncedSetQuery = useMemo(() => debounce(q => setDebounceQuery(q), 200), [])
@@ -100,10 +98,9 @@ export default function Tasks() {
         <View className="flex-row justify-between items-center px-6 mb-4">
           <Text className="text-xl font-semibold text-blue-950 dark:text-gray-300">Suas Tarefas</Text>
           <TouchableOpacity
-            className="bg-blue-500 px-4 py-2 rounded-full"
             onPress={() => router.push('/addTask')}
-          >
-            <Text className="text-white text-sm font-semibold">+ Nova Tarefa</Text>
+            className="w-6 h-6 justify-center items-center rounded-full">
+            <Text className="text-white text-xl font-bold">+</Text>
           </TouchableOpacity>
         </View>
         {isLoading ? (
