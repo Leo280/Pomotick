@@ -46,7 +46,7 @@ export default function StudyScreen() {
   const sessionEnded = completed >= totalPomodoros && sessionType === "pomodoro";
 
   const triggerSessionNotification = async (sessionType: SessionType) => {
-    if (sessionEnded || !pushNotification) return;
+    if (!pushNotification) return;
 
     let title = "";
     let body = "";
@@ -152,6 +152,27 @@ export default function StudyScreen() {
         },
       });
     } else {
+      if (completed >= totalPomodoros) {
+        updateTask({
+          id,
+          body: {
+            completed_pomodoros: completed,
+            is_active: false,
+            is_completed: true,
+            last_update_timer: new Date().toISOString(),
+          },
+        })
+        reset(id, {
+          minutes: 0,
+          seconds: 0,
+          lastUpdated: Date.now(),
+          isRunning: false,
+          sessionType: "pomodoro",
+          notified: true,
+        });
+
+        return
+      }
       const pomodoroMinutes = getTimerMinutes(data!, "pomodoro");
 
       queryClient.setQueryData<TaskDB>(["task", id], (old) => ({
