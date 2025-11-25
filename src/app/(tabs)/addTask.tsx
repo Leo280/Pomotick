@@ -69,7 +69,7 @@ export default function AddTask() {
 
   const handleCreateTask = async (payload: AddTaskSchema) => {
     const normalizedNewTitle = payload.title.trim().toLowerCase();
-    const duplicate = data?.some(task => task.title.trim().toLowerCase() === normalizedNewTitle)
+    const duplicate = data?.some(task => task.title.trim().toLowerCase() === normalizedNewTitle && !task.is_completed) 
     if (duplicate) {
       setIsDuplicate(true)
       return
@@ -361,6 +361,7 @@ export default function AddTask() {
             </View>
           </View>
 
+            {isDuplicate && <Text className="text-center text-red-500 font-bold mt-4 mb-4">Já existe uma tarefa com este título</Text>}
           <View className="bg-cyan-100 rounded-3xl p-5 border border-cyan-400 mb-24">
             <Text className="text-base font-bold text-cyan-600 mb-4">Como funciona o Método Pomodoro?</Text>
             <View className="gap-2">
