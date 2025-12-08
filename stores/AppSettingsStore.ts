@@ -11,7 +11,7 @@ export interface AppSettingsStore {
   enableSound: () => void
   enablePush: () => void
   enableVibration: () => void
-  enableDarkMode: () => void
+  setTheme: (scheme: "light" | "dark") => void
 }
 
 const useAppSettings = create<AppSettingsStore>()(
@@ -24,7 +24,7 @@ const useAppSettings = create<AppSettingsStore>()(
         sounds: true,
         pushNotification: true,
         vibration: true,
-        darkmode: true
+        theme: "",
       },
       changeFocusDuration: (duration) => set(state => ({ settings: { ...state.settings, focusDuration: duration } })),
       changeShortPauseDuration: (duration) => set(state => ({ settings: { ...state.settings, shortPause: duration } })),
@@ -32,7 +32,7 @@ const useAppSettings = create<AppSettingsStore>()(
       enableSound: () => set(state => ({ settings: { ...state.settings, sounds: !state.settings.sounds } })),
       enablePush: () => set(state => ({ settings: { ...state.settings, pushNotification: !state.settings.pushNotification } })),
       enableVibration: () => set(state => ({ settings: { ...state.settings, vibration: !state.settings.vibration } })),
-      enableDarkMode: () => set(state => ({ settings: { ...state.settings, darkmode: !state.settings.darkmode } }))
+      setTheme: (theme) => set(state => ({ settings: { ...state.settings, theme } })),
     }),
     {
       name: 'settings-storage',

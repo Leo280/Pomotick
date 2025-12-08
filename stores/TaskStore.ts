@@ -1,33 +1,36 @@
-import { Task } from "@/types/Task";
+import { Task } from '@/types/Task';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Crypto from 'expo-crypto';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import AsyncStorage from '@react-native-async-storage/async-storage'
 
 export interface TaskStore {
   tasks: Task[];
-  addTask: (title: string, pomodoros: number) => void;
+  favorites: Task[];
+  addTask: (title: string, pomodoros: number, isFavorite?: boolean) => void;
   updateTask: (id: string, updates: Partial<Task>) => void;
   deleteTask: (id: string) => void;
   setActiveTask: (id: string) => void;
   pauseActiveTask: () => void;
-  changeFavorite: (id: string) => void;
+  // changeFavorite: (id: string) => void;
 }
 
 const useTask = create<TaskStore>()(
   persist(
     (set) => ({
       tasks: [],
+      favorites: [],
       addTask: (title, pomodoros) => {
         const newTask: Task = {
           id: Crypto.randomUUID(),
           title,
-          totalPomodoros: pomodoros,
-          completedPomodoros: 0,
-          isActive: false,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          isFavorite: false
+          total_pomodoros: pomodoros,
+          completed_pomodoros: 0,
+          is_active: false,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          time_remaining: pomodoros * 25 * 60,
+          user_id: "teste"
         };
         set(state => ({ tasks: [...state.tasks, newTask] }));
       },
@@ -55,15 +58,19 @@ const useTask = create<TaskStore>()(
       pauseActiveTask: () => {
         set(state => ({
           tasks: state.tasks.map(task =>
-            task.isActive ? { ...task, isActive: false } : task
+            task.is_active ? { ...task, is_active: false } : task
           )
         }));
       },
-      changeFavorite: (id) => {
-        set(state => ({
-          tasks: state.tasks.map(task => task.id === id ? { ...task, isFavorite: !task.isFavorite } : task)
-        }))
-      },
+      // changeFavorite: (id) => {
+      //   set(state => {
+      //     const tasks = state.tasks.map(task =>
+      //       task.id === id ? { ...task, isFavorite: !task.isFavorite } : task
+      //     );
+      //     const favorites = tasks.filter(task => task.isFavorite);
+      //     return { tasks, favorites };
+      //   });
+      // },
     }),
     {
       name: 'task-storage',

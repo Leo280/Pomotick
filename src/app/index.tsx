@@ -1,85 +1,60 @@
-import { DrawerToggleButton } from "@react-navigation/drawer";
-import { router } from "expo-router";
-import { useState } from 'react';
-import {
-  ScrollView,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import { Text } from "react-native-gesture-handler";
-import { SafeAreaView } from "react-native-safe-area-context";
-import useTask from '../../stores/TaskStore';
-import { CreateTaskModal } from '../components/CreateTaskModal';
-import { TaskCard } from '../components/TaskCard';
+import { supabase } from "@/libs/supabase";
+import { useAuthStore } from "@/stores/AuthStore";
+import { Redirect } from "expo-router";
+import { useEffect, useState } from "react";
+import { ActivityIndicator, AppState, Image, View } from "react-native";
+import { getAnimationSettingsUpdates } from "react-native-reanimated/lib/typescript/css/native";
 
+AppState.addEventListener('change', (state) => {
+  if (state === 'active') {
+    supabase.auth.startAutoRefresh()
+  } else {
+    supabase.auth.stopAutoRefresh()
+  }
+})
 
+export default function Index() {
+  const { session, loading, setSession, finishLoading } = useAuthStore()
+  const [isInitialized, setIsInitialized] = useState(false)
 
-export default function Tasks() {
+  useEffect(() => {
+    let mounted = true
+    supabase.auth.getSession().then(({ data }) => {
+      if (mounted) {
+        setSession(data.session ?? null)
 
-  const { tasks, addTask, setActiveTask, pauseActiveTask } = useTask()
-  const [showCreateModal, setShowCreateModal] = useState(false);
+        setTimeout(() => {
+          finishLoading()
+          setIsInitialized(true)
+        }, 100)
+      }
+    })
 
-  const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
-  };
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (mounted) setSession(session)
+    })
 
-  const activeTask = tasks.find(task => task.isActive);
+    return () => {
+      mounted = false
+      subscription.unsubscribe()
+    }
+  }, [])
 
-  const handleCreateTask = (title: string, pomodoros: number) => {
-    addTask(title, pomodoros);
-    setShowCreateModal(false);
-  };
-
-  const handleStartTask = (taskId: string) => {
-    setActiveTask(taskId);
-  };
-
-  const handlePauseTask = () => {
-    pauseActiveTask();
-  };
-
-  return (
-
-    <SafeAreaView className="flex-1 p-6 bg-white">
-      <View className="flex-row justify-between items-center">
-        <View className='flex-row justify-center '>
-          <Text className="text-2xl text-blue-950 pl-3 font-bold"></Text>
-        </View>
-        <DrawerToggleButton tintColor='#172554' />
-      </View>
-      <SafeAreaView className="flex-1 bg-white">
-        <Text className="text-base text-blue-950 px-6 -mt-2 mb-6">Gerencie seu tempo com foco</Text>
-        <View className="flex-row justify-between items-center px-6 mb-4">
-          <Text className="text-xl font-semibold text-blue-950">Suas Tarefas</Text>
-          <TouchableOpacity
-            className="bg-blue-500 px-4 py-2 rounded-full"
-            onPress={() => router.push('/addTask')}
-          >
-            <Text className="text-white text-sm font-semibold">+ Nova Tarefa</Text>
-          </TouchableOpacity>
-        </View>
-
-        <ScrollView className="flex-1 px-6" showsVerticalScrollIndicator={false}>
-          {tasks.map((task) => (
-            <TaskCard
-              key={task.id}
-              task={task}
-              onStart={() => handleStartTask(task.id)}
-              onPause={handlePauseTask}
-            />
-          ))}
-        </ScrollView>
-
-        <CreateTaskModal
-          visible={showCreateModal}
-          onClose={() => setShowCreateModal(false)}
-          onSubmit={handleCreateTask}
+  if (loading || !isInitialized) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Image
+          source={require("@/assets/icons/icon.png")}
+          style={{ width: 64, height: 64, marginBottom: 16 }}
         />
-      </SafeAreaView>
-    </SafeAreaView>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
 
-  )
+  if (!session) {
+    return <Redirect href={"/login"} />
+  }
 
-}
+  return <Redirect href={"/(tabs)"} />
+} 

@@ -5,15 +5,16 @@ import { Octicons } from '@expo/vector-icons';
 import { useAudioPlayer } from 'expo-audio';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 
-type FavoriteButtonProps = Pick<Task, 'id' | 'isFavorite'>
+type FavoriteButtonProps = Pick<Task, 'id' | 'isFavorite'> & { canUnfavorite?: boolean }
 const audioSource = require("../../assets/sounds/sonic_ring.mp3")
 
-const FavoriteButton = ({ id, isFavorite }: FavoriteButtonProps) => {
+const FavoriteButton = ({ id, isFavorite, canUnfavorite }: FavoriteButtonProps) => {
   const player = useAudioPlayer(audioSource)
   const { changeFavorite } = useTask()
   const { settings } = useAppSettings()
 
   const onPressFavButton = async (id: string) => {
+    if (isFavorite && !canUnfavorite) return
     if (settings.sounds) {
       player.play()
       player.seekTo(0)

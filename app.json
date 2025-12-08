@@ -4,7 +4,7 @@
     "slug": "Pomotick",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/icons/icon.png",
     "scheme": "pomotick",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -13,23 +13,31 @@
       "bundleIdentifier": "com.anonymous.Pomotick"
     },
     "android": {
+      "googleServicesFile": "google-services.json",
       "adaptiveIcon": {
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.anonymous.Pomotick"
+      "package": "com.Pomotick",
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.POST_NOTIFICATIONS",
+        "android.permission.VIBRATE",
+        "android.permission.WAKE_LOCK"
+      ]
     },
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/icons/icon.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/icons/icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
@@ -37,10 +45,19 @@
       ],
       "expo-font",
       "expo-web-browser",
-      "expo-audio"
+      "expo-audio",
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "SUPABASE_URL": "https://gmxnehqhisrduznlqlhz.supabase.co",
+      "SUPABASE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdteG5laHFoaXNyZHV6bmxxbGh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzMzY3MjUsImV4cCI6MjA3NjkxMjcyNX0.CfmT4qvZ_plfJGrgxKhvPmsfyNMRz47SrWsm9_8kNtI",
+      "router": {},
+      "eas": {
+        "projectId": "f9e33b93-0481-4e34-9c48-b52216cb9a42"
+      }
     }
   }
 }
